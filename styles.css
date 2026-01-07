@@ -781,6 +781,39 @@ body {
     pointer-events: auto;
 }
 
+/* Footer Login & Link WhatsApp */
+.auth-footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    border-top: 1px solid var(--glass-border);
+    padding-top: 1.25rem;
+}
+
+.auth-footer p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+}
+
+.wa-link {
+    color: var(--p-400);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s var(--ease);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.wa-link:hover {
+    color: var(--p-300);
+    text-decoration: underline;
+}
+
+/* Sembunyikan footer saat mode registrasi agar lebih rapi */
+.auth-footer.hidden {
+    display: none;
+}
+
 /* ===================================
    Light Loading Spinner
    =================================== */
