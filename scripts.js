@@ -3,7 +3,7 @@
 // ===================================
 const CONFIG = {
     // Google Apps Script Web App URL
-    SHEET_API_URL: 'https://script.google.com/macros/s/AKfycbxCCNRvAwQZaF8dHEKNW8Md9XbeqVvfbZUfjozajbfSFzDQSv6Sgl487fNxp38VY6UB/exec',
+    SHEET_API_URL: 'https://script.google.com/macros/s/AKfycbxEtBXnW4_Jlc4LorGuHg3_FU6a6D6bDpbvNIz_qi4Kb7CmQeSRQgmNzM19Q33x5Q/exec',
     // Set to false to use Google Sheets, true to use localStorage for testing
     USE_LOCAL_STORAGE: false
 };
@@ -39,6 +39,7 @@ const elements = {
     loginBtn: document.getElementById('loginBtn'),
     logoutBtn: document.getElementById('logoutBtn'),
     displayUser: document.getElementById('displayUser'),
+    authFooter: document.querySelector('.auth-footer'),
 
     // Custom Alert
     customAlert: document.getElementById('customAlert'),
@@ -279,11 +280,13 @@ function switchAuthMode(mode) {
     if (mode === 'login') {
         elements.tabLogin.classList.add('active');
         elements.tabRegister.classList.remove('active');
+        elements.authFooter.classList.remove('hidden');
     } else {
         elements.tabLogin.classList.remove('active');
         elements.tabRegister.classList.add('active');
+        elements.authFooter.classList.add('hidden');
     }
-
+    lucide.createIcons();
     updateAuthUI(mode);
 }
 
