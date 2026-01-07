@@ -1,0 +1,856 @@
+/* ===================================
+   Premium & Lightweight Design System
+   =================================== */
+:root {
+    /* Sophisticated Color Palette */
+    --p-50: #eef2ff;
+    --p-100: #e0e7ff;
+    --p-200: #c7d2fe;
+    --p-300: #a5b4fc;
+    --p-400: #818cf8;
+    --p-500: #6366f1;
+    /* Primary */
+    --p-600: #4f46e5;
+    --p-700: #4338ca;
+
+    --s-500: #f43f5e;
+    /* Secondary/Rose */
+    --a-500: #8b5cf6;
+    /* Accent/Violet */
+
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #0ea5e9;
+
+    /* Dark Theme Neutrals */
+    --bg-deep: #080a0f;
+    --bg-main: #0f1219;
+    --bg-card: rgba(23, 28, 41, 0.4);
+    --bg-surface: #171c29;
+
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-border-bright: rgba(255, 255, 255, 0.1);
+
+    --text-main: #f1f5f9;
+    --text-dim: #94a3b8;
+    --text-muted: #64748b;
+
+    /* Effects - Lightened */
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --radius-lg: 20px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+
+    --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+}
+
+/* ===================================
+   Base Reset & Typography
+   =================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-deep);
+    color: var(--text-main);
+    line-height: 1.5;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--glass-border-bright);
+    border-radius: 10px;
+}
+
+/* ===================================
+   Light Background Decoration
+   =================================== */
+.bg-decoration {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(244, 63, 94, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* ===================================
+   Layout Components
+   =================================== */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.title {
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #fff;
+}
+
+.title-icon-svg {
+    width: 32px;
+    height: 32px;
+    color: var(--p-500);
+}
+
+.subtitle {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    margin-top: 0.15rem;
+}
+
+.header-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+/* ===================================
+   Floating Action Button (FAB)
+   =================================== */
+.fab-btn {
+    position: fixed;
+    bottom: 2.5rem;
+    right: 2.5rem;
+    z-index: 4000;
+    background: linear-gradient(135deg, var(--p-500), var(--p-700));
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    width: 56px;
+    height: 56px;
+}
+
+.fab-btn i {
+    min-width: 24px;
+    height: 24px;
+}
+
+.fab-btn span {
+    font-weight: 700;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    opacity: 0;
+    width: 0;
+    transition: all 0.3s var(--ease);
+}
+
+.fab-btn:hover {
+    width: 140px;
+    padding: 1rem 1.5rem;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.6);
+}
+
+.fab-btn:hover span {
+    opacity: 1;
+    width: auto;
+}
+
+.fab-btn:active {
+    transform: scale(0.95);
+}
+
+/* Hide FAB when login overlay is visible */
+.login-overlay:not(.hidden)~.fab-btn {
+    display: none;
+}
+
+/* ===================================
+   Light Buttons
+   =================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.25rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s var(--ease);
+}
+
+.btn-primary {
+    background: var(--p-500);
+    color: white;
+    transition: transform 0.2s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+.btn-primary:hover {
+    background: var(--p-600);
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: scale(0.97);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-main);
+    border: 1px solid var(--glass-border);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+#logoutBtn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-weight: 500;
+    transition: all 0.3s var(--ease);
+    backdrop-filter: blur(8px);
+}
+
+#logoutBtn:hover {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: var(--danger);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.15);
+}
+
+#logoutBtn i {
+    width: 16px !important;
+    height: 16px !important;
+    transition: transform 0.3s var(--ease);
+}
+
+#logoutBtn:hover i {
+    transform: translateX(-3px);
+}
+
+#displayUser {
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+
+/* ===================================
+   Light Stats Cards
+   =================================== */
+.stats-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s var(--ease);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--p-500);
+}
+
+.stat-icon-wrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.stat-icon-wrapper.primary {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--p-400);
+}
+
+.stat-icon-wrapper.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+}
+
+.stat-icon-wrapper.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+}
+
+.stat-icon-wrapper.info {
+    background: rgba(14, 165, 233, 0.1);
+    color: var(--info);
+}
+
+.stat-label {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+/* ===================================
+   Search & Filter
+   =================================== */
+.search-section {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.search-container {
+    flex: 1;
+    min-width: 280px;
+    position: relative;
+}
+
+.search-icon-svg {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--p-500);
+}
+
+.filter-container {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.select-wrapper {
+    position: relative;
+    min-width: 150px;
+}
+
+.select-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+}
+
+.filter-select {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.25rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-main);
+    font-size: 0.85rem;
+    cursor: pointer;
+    appearance: none;
+}
+
+/* ===================================
+   Light Data Table
+   =================================== */
+.table-container {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--glass-border);
+    cursor: pointer;
+}
+
+.data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    font-size: 0.9rem;
+}
+
+.data-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.status-selesai {
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+}
+
+.status-sedang-ditonton {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+}
+
+.status-rencana {
+    background: rgba(14, 165, 233, 0.1);
+    color: #38bdf8;
+}
+
+.status-ditunda {
+    background: rgba(148, 163, 184, 0.1);
+    color: #cbd5e1;
+}
+
+.status-drop {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+}
+
+.type-tag {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-icon:hover {
+    background: var(--p-500);
+    color: white;
+    border-color: var(--p-500);
+}
+
+.btn-icon.delete:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+}
+
+/* ===================================
+   Light Modals
+   =================================== */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+}
+
+.modal:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border-bright);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 500px;
+    padding: 2rem;
+    transform: scale(0.95);
+    transition: 0.2s;
+}
+
+.modal:not(.hidden) .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modal-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modal-title-wrapper i {
+    color: var(--p-500);
+    font-size: 1.25rem;
+}
+
+.modal-title-wrapper h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.25rem;
+}
+
+/* ===================================
+   Forms
+   =================================== */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* Memastikan isi grup (label & input) rata kiri */
+    margin-bottom: 1.25rem;
+    width: 100%;
+}
+
+/* Selector ini mencakup elemen <label> dan class .form-label */
+.form-group label,
+.form-label {
+    display: block;
+    width: 100%;
+    text-align: left;
+    /* Paksa teks label ke kiri */
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--p-200);
+    padding-left: 0.25rem;
+}
+
+.input-wrapper {
+    position: relative;
+    width: 100%;
+    /* Pastikan wrapper memenuhi lebar form */
+}
+
+.input-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    color: var(--p-400);
+    pointer-events: none;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: white;
+    font-size: 0.9rem;
+    transition: border-color 0.2s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--p-500);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-textarea {
+    min-height: 100px;
+    resize: vertical;
+    padding: 0.75rem 1rem;
+    /* Textarea biasanya tidak pakai icon di kiri */
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    width: 100%;
+}
+
+/* ===================================
+   Login Overlay & Card (No Animations)
+   =================================== */
+.login-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-deep);
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 400px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.3rem;
+    border-radius: 14px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--glass-border);
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 0.7rem;
+    border: none;
+    background: transparent;
+    color: var(--p-300);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 11px;
+}
+
+.auth-tab.active {
+    background: var(--p-500);
+    color: white;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--p-400);
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-toggle:hover {
+    color: var(--p-200);
+}
+
+/* Field Registrasi (No Transition) */
+#confirmPasswordGroup {
+    display: block !important;
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+#confirmPasswordGroup:not(.hidden) {
+    max-height: 100px;
+    opacity: 1;
+    margin-top: 1rem;
+    pointer-events: auto;
+}
+
+/* ===================================
+   Light Loading Spinner
+   =================================== */
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 10, 15, 0.8);
+    z-index: 7000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--p-500);
+    animation: spin-light 0.6s linear infinite;
+}
+
+@keyframes spin-light {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ===================================
+   Light Toast Notification
+   =================================== */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(23, 28, 41, 0.95);
+    border: 1px solid var(--glass-border);
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    z-index: 9999;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.toast.active {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+.toast-icon {
+    display: flex;
+    align-items: center;
+    color: var(--success);
+}
+
+.toast.error .toast-icon {
+    color: var(--danger);
+}
+
+.toast-message {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
+}
+
+.hidden {
+    display: none !important;
+}

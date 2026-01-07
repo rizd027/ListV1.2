@@ -1,0 +1,625 @@
+// ===================================
+// Configuration
+// ===================================
+const CONFIG = {
+    // Google Apps Script Web App URL
+    SHEET_API_URL: 'https://script.google.com/macros/s/AKfycbxCCNRvAwQZaF8dHEKNW8Md9XbeqVvfbZUfjozajbfSFzDQSv6Sgl487fNxp38VY6UB/exec',
+    // Set to false to use Google Sheets, true to use localStorage for testing
+    USE_LOCAL_STORAGE: false
+};
+
+// ===================================
+// State Management
+// ===================================
+let filmData = [];
+let filteredData = [];
+let currentEditId = null;
+let sortColumn = 'id';
+let sortDirection = 'asc';
+let currentUser = localStorage.getItem('film_username') || null;
+let currentPass = localStorage.getItem('film_password') || null;
+let authMode = 'login';
+let toastTimeout = null;
+
+// ===================================
+// DOM Elements
+// ===================================
+const elements = {
+    loginOverlay: document.getElementById('loginOverlay'),
+    authTitle: document.getElementById('authTitle'),
+    authSubtitle: document.getElementById('authSubtitle'),
+    tabLogin: document.getElementById('tabLogin'),
+    tabRegister: document.getElementById('tabRegister'),
+    usernameInput: document.getElementById('usernameInput'),
+    passwordInput: document.getElementById('passwordInput'),
+    confirmPasswordGroup: document.getElementById('confirmPasswordGroup'),
+    confirmPasswordInput: document.getElementById('confirmPasswordInput'),
+    togglePassword: document.getElementById('togglePassword'),
+    toggleConfirmPassword: document.getElementById('toggleConfirmPassword'),
+    loginBtn: document.getElementById('loginBtn'),
+    logoutBtn: document.getElementById('logoutBtn'),
+    displayUser: document.getElementById('displayUser'),
+
+    // Custom Alert
+    customAlert: document.getElementById('customAlert'),
+    alertTitle: document.getElementById('alertTitle'),
+    alertMessage: document.getElementById('alertMessage'),
+    alertIcon: document.getElementById('alertIcon'),
+    closeAlertBtn: document.getElementById('closeAlertBtn'),
+    closeAlertBtnOk: document.getElementById('closeAlertBtnOk'),
+
+    // Toast
+    toast: document.getElementById('toast'),
+    toastMessage: document.getElementById('toastMessage'),
+    toastIcon: document.getElementById('toastIcon'),
+
+    // Buttons
+    addBtn: document.getElementById('addBtn'),
+    closeModal: document.getElementById('closeModal'),
+    cancelBtn: document.getElementById('cancelBtn'),
+    closeConfirmModal: document.getElementById('closeConfirmModal'),
+    cancelDeleteBtn: document.getElementById('cancelDeleteBtn'),
+    confirmDeleteBtn: document.getElementById('confirmDeleteBtn'),
+
+    // Forms
+    dataForm: document.getElementById('dataForm'),
+
+    // Inputs
+    searchInput: document.getElementById('searchInput'),
+    statusFilter: document.getElementById('statusFilter'),
+    typeFilter: document.getElementById('typeFilter'),
+
+    // Form Inputs
+    editId: document.getElementById('editId'),
+    titleInput: document.getElementById('titleInput'),
+    typeInput: document.getElementById('typeInput'),
+    episodesInput: document.getElementById('episodesInput'),
+    statusInput: document.getElementById('statusInput'),
+    dateInput: document.getElementById('dateInput'),
+    notesInput: document.getElementById('notesInput'),
+
+    // Display
+    tableBody: document.getElementById('tableBody'),
+    emptyState: document.getElementById('emptyState'),
+    modal: document.getElementById('modal'),
+    confirmModal: document.getElementById('confirmModal'),
+    modalTitle: document.getElementById('modalTitle'),
+    submitBtnText: document.getElementById('submitBtnText'),
+    loadingOverlay: document.getElementById('loadingOverlay'),
+
+    // Stats
+    totalCount: document.getElementById('totalCount'),
+    completedCount: document.getElementById('completedCount'),
+    watchingCount: document.getElementById('watchingCount'),
+    plannedCount: document.getElementById('plannedCount')
+};
+
+// ===================================
+// Initialization
+// ===================================
+document.addEventListener('DOMContentLoaded', () => {
+    initializeEventListeners();
+
+    if (currentUser && currentPass) {
+        elements.loginOverlay.classList.add('hidden');
+        elements.displayUser.textContent = currentUser;
+        loadData();
+    } else {
+        elements.loginOverlay.classList.remove('hidden');
+    }
+});
+
+function initializeEventListeners() {
+    elements.loginBtn.addEventListener('click', handleLogin);
+    elements.logoutBtn.addEventListener('click', handleLogout);
+
+    elements.tabLogin.addEventListener('click', () => switchAuthMode('login'));
+    elements.tabRegister.addEventListener('click', () => switchAuthMode('register'));
+    elements.togglePassword.addEventListener('click', () => togglePasswordVisibility('passwordInput', elements.togglePassword));
+    elements.toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility('confirmPasswordInput', elements.toggleConfirmPassword));
+
+    elements.addBtn.addEventListener('click', openAddModal);
+    elements.closeModal.addEventListener('click', closeModal);
+    elements.cancelBtn.addEventListener('click', closeModal);
+    elements.closeConfirmModal.addEventListener('click', closeConfirmModal);
+    elements.cancelDeleteBtn.addEventListener('click', closeConfirmModal);
+    elements.confirmDeleteBtn.addEventListener('click', confirmDelete);
+
+    elements.closeAlertBtn.addEventListener('click', () => elements.customAlert.classList.add('hidden'));
+    elements.closeAlertBtnOk.addEventListener('click', () => elements.customAlert.classList.add('hidden'));
+
+    elements.dataForm.addEventListener('submit', handleFormSubmit);
+
+    elements.searchInput.addEventListener('input', debounce(handleSearch, 300));
+    elements.statusFilter.addEventListener('change', handleFilter);
+    elements.typeFilter.addEventListener('change', handleFilter);
+
+    document.querySelectorAll('th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => handleSort(th.dataset.sort));
+    });
+
+    [elements.modal, elements.confirmModal, elements.customAlert].forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.add('hidden');
+        });
+    });
+}
+
+// ===================================
+// UI Notification Functions
+// ===================================
+function updateAuthUI(mode) {
+    const isLogin = mode === 'login';
+
+    // Update teks secara instan tanpa animasi
+    elements.loginBtn.textContent = isLogin ? 'Masuk' : 'Daftar';
+    elements.authTitle.textContent = isLogin ? 'Akses Koleksi' : 'Buat Akun';
+    elements.authSubtitle.textContent = isLogin ? 'Silakan masuk ke akun Anda' : 'Daftar untuk mulai mengelola';
+    lucide.createIcons();
+
+    // Toggle confirm password secara instan
+    if (isLogin) {
+        elements.confirmPasswordGroup.classList.add('hidden');
+    } else {
+        elements.confirmPasswordGroup.classList.remove('hidden');
+    }
+}
+
+function showAlert(title, message, type = 'info') {
+    elements.alertTitle.textContent = title;
+    elements.alertMessage.textContent = message;
+
+    const iconName = type === 'success' ? 'check-circle' : (type === 'error' ? 'alert-circle' : 'info');
+    elements.alertIcon.setAttribute('data-lucide', iconName);
+    elements.customAlert.classList.remove('hidden');
+    lucide.createIcons();
+}
+
+function showToast(message, type = 'success') {
+    if (toastTimeout) clearTimeout(toastTimeout);
+
+    const toast = elements.toast;
+
+    // Reset status toast agar bisa langsung muncul kembali jika dipicu berulang kali
+    toast.classList.remove('active');
+
+    // Force reflow agar animasi restart (opsional)
+    void toast.offsetWidth;
+
+    elements.toastMessage.textContent = message;
+    toast.className = `toast active ${type}`;
+
+    const iconName = type === 'success' ? 'check-circle' : (type === 'info' ? 'info' : 'alert-circle');
+    elements.toastIcon.setAttribute('data-lucide', iconName);
+    lucide.createIcons();
+
+    // Sembunyikan setelah 3 detik
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove('active');
+    }, 3000);
+}
+
+function hideToastInstantly() {
+    if (toastTimeout) clearTimeout(toastTimeout);
+    elements.toast.classList.remove('active');
+}
+
+function showLoading(message = 'Memuat...') {
+    elements.loadingOverlay.querySelector('.loading-text').textContent = message;
+    elements.loadingOverlay.classList.remove('hidden');
+}
+
+function hideLoading() {
+    setTimeout(() => {
+        elements.loadingOverlay.classList.add('hidden');
+    }, 200);
+}
+
+// ===================================
+// Auth & Data API Functions
+// ===================================
+async function handleLogin() {
+    const user = elements.usernameInput.value.trim().toLowerCase();
+    const pass = elements.passwordInput.value.trim();
+
+    if (!user || !pass) {
+        showToast('Username dan Password wajib diisi!', 'error');
+        return;
+    }
+
+    if (authMode === 'register') {
+        const confirmPass = elements.confirmPasswordInput.value.trim();
+        if (pass !== confirmPass) {
+            showToast('Password konfirmasi tidak cocok!', 'error');
+            return;
+        }
+    }
+
+    const cleanUser = user.replace(/[^a-z0-9]/g, '_');
+    showLoading(authMode === 'login' ? 'Masuk ke akun...' : 'Mendaftarkan akun...');
+
+    try {
+        const url = `${CONFIG.SHEET_API_URL}?action=${authMode}&user=${encodeURIComponent(cleanUser)}&pass=${encodeURIComponent(pass)}`;
+        const response = await fetch(url, { method: 'POST' });
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            showToast(result.data?.message || 'Berhasil!', 'success');
+
+            localStorage.setItem('film_username', cleanUser);
+            localStorage.setItem('film_password', pass);
+            currentUser = cleanUser;
+            currentPass = pass;
+
+            setTimeout(() => {
+                elements.loginOverlay.classList.add('hidden');
+                elements.displayUser.textContent = currentUser;
+                loadData();
+            }, 500);
+        } else {
+            showToast(result.message, 'error');
+        }
+    } catch (error) {
+        showToast('Koneksi gagal atau server error', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+function handleLogout() {
+    localStorage.removeItem('film_username');
+    localStorage.removeItem('film_password');
+    location.reload();
+}
+
+function switchAuthMode(mode) {
+    authMode = mode;
+
+    // Update Tab Active State
+    if (mode === 'login') {
+        elements.tabLogin.classList.add('active');
+        elements.tabRegister.classList.remove('active');
+    } else {
+        elements.tabLogin.classList.remove('active');
+        elements.tabRegister.classList.add('active');
+    }
+
+    updateAuthUI(mode);
+}
+
+function togglePasswordVisibility(inputId, button) {
+    const input = document.getElementById(inputId);
+    const icon = button.querySelector('i, svg');
+    if (input && icon) {
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            input.type = 'password';
+            icon.setAttribute('data-lucide', 'eye');
+        }
+        lucide.createIcons();
+    }
+}
+
+async function loadData() {
+    if (!currentUser || !currentPass) return;
+    showLoading('Memuat data...');
+
+    try {
+        if (CONFIG.USE_LOCAL_STORAGE) {
+            const stored = localStorage.getItem(`filmData_${currentUser}`);
+            filmData = stored ? JSON.parse(stored) : [];
+        } else {
+            const url = `${CONFIG.SHEET_API_URL}?action=read&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
+            const response = await fetch(url);
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                filmData = result.data.map(item => ({
+                    id: item.no,
+                    title: item.judul || '',
+                    type: item.type || '',
+                    episodes: item.episode || null,
+                    status: item.status || '',
+                    date: item.date || null,
+                    notes: item.notes || '',
+                    rowIndex: item.rowIndex
+                }));
+            } else {
+                throw new Error(result.message || 'Gagal memuat data');
+            }
+        }
+
+        filteredData = [...filmData];
+        renderTable();
+        updateStats();
+    } catch (error) {
+        showToast('Gagal memuat data: ' + error.message, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+async function saveData(data, action = 'add') {
+    if (!currentUser || !currentPass) return;
+
+    // --- STRATEGI OPTIMISTIC UI ---
+    // Simpan data lama untuk backup jika gagal
+    const oldFilmData = [...filmData];
+
+    if (action === 'add') {
+        // Berikan ID sementara agar bisa langsung muncul di tabel
+        data.id = filmData.length > 0 ? Math.max(...filmData.map(f => f.id)) + 1 : 1;
+        data.isPending = true; // Tandai bahwa ini sedang diproses
+        filmData.push(data);
+    } else {
+        const index = filmData.findIndex(f => f.id === data.id);
+        if (index !== -1) {
+            data.rowIndex = filmData[index].rowIndex; // Pertahankan rowIndex
+            filmData[index] = data;
+        }
+    }
+
+    // Update UI seketika
+    applyFilters(elements.searchInput.value.toLowerCase());
+    updateStats();
+    showToast(action === 'add' ? 'Menambah data...' : 'Memperbarui data...', 'info');
+
+    // --- PROSES LATAR BELAKANG ---
+    try {
+        if (CONFIG.USE_LOCAL_STORAGE) {
+            localStorage.setItem(`filmData_${currentUser}`, JSON.stringify(filmData));
+            showToast('Tersimpan secara lokal', 'success');
+        } else {
+            const sheetData = {
+                no: data.id,
+                judul: data.title,
+                type: data.type,
+                episode: data.episodes,
+                status: data.status,
+                date: data.date,
+                notes: data.notes,
+                rowIndex: data.rowIndex
+            };
+
+            const formData = new FormData();
+            formData.append('data', JSON.stringify(sheetData));
+
+            const url = `${CONFIG.SHEET_API_URL}?action=${action}&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
+
+            // fetch berjalan di latar belakang (tanpa await showLoading)
+            const response = await fetch(url, { method: 'POST', body: formData });
+            const result = await response.json();
+
+            if (result.status === 'success') {
+                showToast('Sinkronisasi Berhasil!', 'success');
+                // Ambil ulang data hanya untuk memastikan rowIndex terbaru tersinkron
+                silentLoadData();
+            } else {
+                throw new Error(result.message);
+            }
+        }
+    } catch (error) {
+        // Jika gagal, kembalikan ke data lama (Rollback)
+        filmData = oldFilmData;
+        applyFilters(elements.searchInput.value.toLowerCase());
+        updateStats();
+        showAlert('Gagal Sinkron', 'Data gagal dikirim ke server: ' + error.message, 'error');
+    }
+}
+
+async function deleteData(id) {
+    if (!currentUser || !currentPass) return;
+
+    const oldData = [...filmData];
+    const targetFilm = filmData.find(f => f.id === id);
+    if (!targetFilm) return;
+
+    // Update UI Seketika (Hapus dari memori)
+    filmData = filmData.filter(f => f.id !== id);
+    applyFilters(elements.searchInput.value.toLowerCase());
+    updateStats();
+    showToast('Menghapus data...', 'info');
+
+    try {
+        if (CONFIG.USE_LOCAL_STORAGE) {
+            localStorage.setItem(`filmData_${currentUser}`, JSON.stringify(filmData));
+        } else {
+            const formData = new FormData();
+            formData.append('data', JSON.stringify({ rowIndex: targetFilm.rowIndex }));
+            const url = `${CONFIG.SHEET_API_URL}?action=delete&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
+
+            const response = await fetch(url, { method: 'POST', body: formData });
+            const result = await response.json();
+
+            if (result.status !== 'success') throw new Error(result.message);
+            showToast('Terhapus dari database', 'success');
+        }
+    } catch (error) {
+        // Rollback jika gagal
+        filmData = oldData;
+        applyFilters(elements.searchInput.value.toLowerCase());
+        updateStats();
+        showToast('Gagal menghapus di server', 'error');
+    }
+}
+
+async function silentLoadData() {
+    try {
+        const url = `${CONFIG.SHEET_API_URL}?action=read&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            filmData = result.data.map(item => ({
+                id: item.no,
+                title: item.judul || '',
+                type: item.type || '',
+                episodes: item.episode || null,
+                status: item.status || '',
+                date: item.date || null,
+                notes: item.notes || '',
+                rowIndex: item.rowIndex
+            }));
+            applyFilters(elements.searchInput.value.toLowerCase());
+            updateStats();
+        }
+    } catch (e) {
+        console.log("Silent update failed");
+    }
+}
+
+// ===================================
+// UI Rendering
+// ===================================
+function renderTable() {
+    elements.tableBody.innerHTML = '';
+    if (filteredData.length === 0) {
+        elements.emptyState.classList.remove('hidden');
+        return;
+    }
+    elements.emptyState.classList.add('hidden');
+
+    filteredData.forEach(film => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>#${film.id}</td>
+            <td><strong>${escapeHtml(film.title)}</strong></td>
+            <td><span class="type-tag">${escapeHtml(film.type)}</span></td>
+            <td>${film.episodes || '-'}</td>
+            <td><span class="status-badge ${getStatusClass(film.status)}">${escapeHtml(film.status)}</span></td>
+            <td>${film.date ? formatDate(film.date) : '-'}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon" onclick="editFilm(${film.id})"><i data-lucide="edit-2"></i></button>
+                    <button class="btn-icon delete" onclick="openDeleteModal(${film.id})"><i data-lucide="trash-2"></i></button>
+                </div>
+            </td>
+        `;
+        elements.tableBody.appendChild(row);
+    });
+    lucide.createIcons();
+}
+
+function updateStats() {
+    elements.totalCount.textContent = filmData.length;
+    elements.completedCount.textContent = filmData.filter(f => f.status === 'Selesai').length;
+    elements.watchingCount.textContent = filmData.filter(f => f.status === 'Sedang Ditonton').length;
+    elements.plannedCount.textContent = filmData.filter(f => f.status === 'Rencana').length;
+}
+
+// ===================================
+// Handlers
+// ===================================
+function openAddModal() {
+    currentEditId = null;
+    elements.modalTitle.textContent = 'Tambah Koleksi';
+    elements.submitBtnText.textContent = 'Simpan';
+    elements.dataForm.reset();
+    elements.editId.value = '';
+    elements.dateInput.value = new Date().toISOString().split('T')[0];
+    elements.notesInput.value = '';
+    elements.modal.classList.remove('hidden');
+    lucide.createIcons();
+}
+
+function openEditModal(film) {
+    currentEditId = film.id;
+    elements.modalTitle.textContent = 'Edit Koleksi';
+    elements.submitBtnText.textContent = 'Simpan';
+    elements.editId.value = film.id;
+    elements.titleInput.value = film.title;
+    elements.typeInput.value = film.type;
+    elements.episodesInput.value = film.episodes || '';
+    elements.statusInput.value = film.status;
+    elements.dateInput.value = film.date ? new Date(film.date).toISOString().split('T')[0] : '';
+    elements.notesInput.value = film.notes || '';
+    elements.modal.classList.remove('hidden');
+    lucide.createIcons();
+}
+
+function closeModal() { elements.modal.classList.add('hidden'); }
+function openDeleteModal(id) { currentEditId = id; elements.confirmModal.classList.remove('hidden'); }
+function closeConfirmModal() { elements.confirmModal.classList.add('hidden'); }
+
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    hideToastInstantly();
+    const data = {
+        title: elements.titleInput.value.trim(),
+        type: elements.typeInput.value.trim(),
+        episodes: elements.episodesInput.value ? parseInt(elements.episodesInput.value) : null,
+        status: elements.statusInput.value.trim(),
+        date: elements.dateInput.value || null,
+        notes: elements.notesInput.value.trim()
+    };
+    closeModal();
+    if (currentEditId) {
+        data.id = currentEditId;
+        data.rowIndex = filmData.find(f => f.id === currentEditId)?.rowIndex;
+        await saveData(data, 'edit');
+    } else {
+        await saveData(data, 'add');
+    }
+}
+
+async function confirmDelete() {
+    if (currentEditId) {
+        hideToastInstantly();
+        closeConfirmModal();
+        await deleteData(currentEditId);
+    }
+}
+
+function handleSearch() { applyFilters(elements.searchInput.value.toLowerCase()); }
+function handleFilter() { applyFilters(elements.searchInput.value.toLowerCase()); }
+
+function applyFilters(searchTerm = '') {
+    const statusFilter = elements.statusFilter.value;
+    const typeFilter = elements.typeFilter.value;
+    filteredData = filmData.filter(film => {
+        const matchesSearch = !searchTerm || film.title.toLowerCase().includes(searchTerm);
+        const matchesStatus = !statusFilter || film.status === statusFilter;
+        const matchesType = !typeFilter || film.type === typeFilter;
+        return matchesSearch && matchesStatus && matchesType;
+    });
+    renderTable();
+}
+
+function handleSort(column) {
+    if (sortColumn === column) sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    else { sortColumn = column; sortDirection = 'asc'; }
+    filteredData.sort((a, b) => {
+        let aVal = a[column], bVal = b[column];
+        if (aVal == null) return 1; if (bVal == null) return -1;
+        if (typeof aVal === 'string') { aVal = aVal.toLowerCase(); bVal = bVal.toLowerCase(); }
+        return aVal < bVal ? (sortDirection === 'asc' ? -1 : 1) : (sortDirection === 'asc' ? 1 : -1);
+    });
+    renderTable();
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
+
+window.editFilm = id => { const film = filmData.find(f => f.id === id); if (film) openEditModal(film); };
+window.openDeleteModal = openDeleteModal;
+
+function getStatusClass(status) {
+    const map = { 'Selesai': 'status-selesai', 'Sedang Ditonton': 'status-sedang-ditonton', 'Rencana': 'status-rencana', 'Ditunda': 'status-ditunda', 'Drop': 'status-drop' };
+    return map[status] || '';
+}
+
+function formatDate(date) {
+    return new Date(date).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function escapeHtml(text) {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+    return String(text).replace(/[&<>"']/g, m => map[m]);
+}

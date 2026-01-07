@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Kelola koleksi film dan donghua Anda dengan mudah menggunakan Film Table Manager yang terintegrasi dengan Google Sheets">
+    <title>Film & Donghua Table Manager</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <!-- Light Background Decoration -->
+    <div class="bg-decoration"></div>
+
+    <!-- Login Overlay -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <h2 id="authTitle">Akses Koleksi</h2>
+                <p id="authSubtitle">Silakan masuk ke akun Anda</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button id="tabLogin" class="auth-tab active">Masuk</button>
+                <button id="tabRegister" class="auth-tab">Daftar</button>
+            </div>
+
+            <div class="login-form">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="user" class="input-icon"></i>
+                        <input type="text" id="usernameInput" class="form-input" placeholder="Masukkan username">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="lock" class="input-icon"></i>
+                        <input type="password" id="passwordInput" class="form-input" placeholder="Masukkan password">
+                        <button type="button" id="togglePassword" class="password-toggle">
+                            <i data-lucide="eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="confirmPasswordGroup" class="form-group hidden">
+                    <label class="form-label">Konfirmasi Password</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="lock" class="input-icon"></i>
+                        <input type="password" id="confirmPasswordInput" class="form-input"
+                            placeholder="Ulangi password">
+                        <button type="button" id="toggleConfirmPassword" class="password-toggle">
+                            <i data-lucide="eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button id="loginBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    Masuk
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="customAlert" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrapper">
+                    <i id="alertIcon" data-lucide="info"></i>
+                    <h2 id="alertTitle">Pemberitahuan</h2>
+                </div>
+                <button id="closeAlertBtn" class="close-btn"><i data-lucide="x"></i></button>
+            </div>
+            <p id="alertMessage" style="margin-bottom: 1.5rem; color: var(--text-dim);"></p>
+            <button id="closeAlertBtnOk" class="btn btn-primary" style="width: 100%;">Oke</button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div style="text-align: center;">
+            <div class="spinner" style="margin: 0 auto 1rem;"></div>
+            <p class="loading-text" style="font-size: 0.9rem; color: var(--text-dim);">Memuat data...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div class="toast-icon">
+            <i id="toastIcon" data-lucide="check-circle"></i>
+        </div>
+        <span id="toastMessage" class="toast-message">Berhasil!</span>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button id="addBtn" class="fab-btn" title="Tambah Koleksi">
+        <i data-lucide="plus"></i>
+        <span>Tambah</span>
+    </button>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">
+                    <i data-lucide="clapperboard" class="title-icon-svg"></i>
+                    ListV Manager
+                </h1>
+                <p class="subtitle">Kelola koleksi film dan donghua Anda</p>
+            </div>
+            <div class="header-actions">
+                <button id="logoutBtn">
+                    <i data-lucide="log-out"></i> Keluar dari <span id="displayUser"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-icon-wrapper primary">
+                    <i data-lucide="library"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Total</p>
+                    <p class="stat-value" id="totalCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper success">
+                    <i data-lucide="check-circle-2"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Selesai</p>
+                    <p class="stat-value" id="completedCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper warning">
+                    <i data-lucide="play-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Ditonton</p>
+                    <p class="stat-value" id="watchingCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon-wrapper info">
+                    <i data-lucide="calendar-days"></i>
+                </div>
+                <div class="stat-content">
+                    <p class="stat-label">Rencana</p>
+                    <p class="stat-value" id="plannedCount">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-section">
+            <div class="search-container">
+                <i data-lucide="search" class="search-icon-svg"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Cari koleksi...">
+            </div>
+            <div class="filter-container">
+                <div class="select-wrapper">
+                    <i data-lucide="filter" class="select-icon"></i>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">Status</option>
+                        <option value="Selesai">Selesai</option>
+                        <option value="Sedang Ditonton">Sedang Ditonton</option>
+                        <option value="Rencana">Rencana</option>
+                        <option value="Ditunda">Ditunda</option>
+                        <option value="Drop">Drop</option>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <i data-lucide="layers" class="select-icon"></i>
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">Tipe</option>
+                        <option value="Film">Film</option>
+                        <option value="Donghua">Donghua</option>
+                        <option value="Anime">Anime</option>
+                        <option value="Series">Series</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="table-container">
+            <table class="data-table" id="dataTable">
+                <thead>
+                    <tr>
+                        <th data-sort="id">ID</th>
+                        <th data-sort="title">Judul</th>
+                        <th data-sort="type">Tipe</th>
+                        <th data-sort="episodes">Eps</th>
+                        <th data-sort="status">Status</th>
+                        <th data-sort="date">Tanggal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
+            <div id="emptyState" class="empty-state hidden" style="padding: 3rem; text-align: center;">
+                <p style="color: var(--text-dim);">Tidak ada data ditemukan.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-wrapper">
+                    <i data-lucide="edit-3" id="modalIcon"></i>
+                    <h2 id="modalTitle">Tambah Koleksi</h2>
+                </div>
+                <button id="closeModal" class="close-btn"><i data-lucide="x"></i></button>
+            </div>
+            <form id="dataForm" class="data-form">
+                <input type="hidden" id="editId">
+
+                <div class="form-group">
+                    <label for="titleInput" class="form-label">Judul *</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="type" class="input-icon"></i>
+                        <input type="text" id="titleInput" class="form-input" placeholder="Contoh: Soul Land" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="typeInput" class="form-label">Tipe *</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="layers" class="input-icon"></i>
+                            <input type="text" id="typeInput" class="form-input" list="typeOptions"
+                                placeholder="Pilih tipe" required>
+                            <datalist id="typeOptions">
+                                <option value="Film">
+                                <option value="Donghua">
+                                <option value="Anime">
+                                <option value="Series">
+                            </datalist>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="statusInput" class="form-label">Status *</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="activity" class="input-icon"></i>
+                            <input type="text" id="statusInput" class="form-input" list="statusOptions"
+                                placeholder="Pilih status" required>
+                            <datalist id="statusOptions">
+                                <option value="Selesai">
+                                <option value="Sedang Ditonton">
+                                <option value="Rencana">
+                                <option value="Ditunda">
+                                <option value="Drop">
+                            </datalist>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="episodesInput" class="form-label">Episode</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="hash" class="input-icon"></i>
+                            <input type="number" id="episodesInput" class="form-input" placeholder="12" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dateInput" class="form-label">Tanggal</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="calendar" class="input-icon"></i>
+                            <input type="date" id="dateInput" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notesInput" class="form-label">Catatan</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="sticky-note" class="input-icon" style="top: 0.8rem; transform: none;"></i>
+                        <textarea id="notesInput" class="form-input" placeholder="Tambahkan catatan atau review..."
+                            style="min-height: 100px; padding-top: 0.75rem; resize: vertical;"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" id="cancelBtn" class="btn btn-secondary">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span id="submitBtnText">Simpan</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header">
+                <div class="modal-title-wrapper">
+                    <i data-lucide="alert-triangle" class="text-warning"></i>
+                    <h2>Hapus Data?</h2>
+                </div>
+                <button id="closeConfirmModal" class="close-btn"><i data-lucide="x"></i></button>
+            </div>
+            <p style="margin-bottom: 2rem; color: var(--text-dim);">Data akan dihapus secara permanen.</p>
+            <div class="form-actions" style="justify-content: center;">
+                <button id="cancelDeleteBtn" class="btn btn-secondary">Batal</button>
+                <button id="confirmDeleteBtn" class="btn btn-danger">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
