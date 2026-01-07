@@ -81,6 +81,167 @@ body {
 }
 
 /* ===================================
+   Responsive Mobile Optimization
+   =================================== */
+
+/* --- MOBILE: Ultra-Minimalis & Proporsional (Kurang dari 768px) --- */
+@media (max-width: 768px) {
+
+    /* Grid 2x2 yang presisi */
+    .stats-section {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 8px !important;
+        /* Jarak sedikit lebih longgar agar tidak sesak */
+        margin-bottom: 8px !important;
+        margin-top: 0 !important;
+    }
+
+    /* Kartu Statistik Micro-Square yang Elegan */
+    .stat-card {
+        display: flex;
+        flex-direction: column;
+        height: 100px;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 2px;
+        /* Padding vertikal ditambah agar proporsional */
+        border-radius: 16px;
+        /* Corner lebih halus/rounded */
+        background: rgba(23, 28, 41, 0.4);
+        border: 1px solid var(--glass-border);
+    }
+
+    /* Ikon: Wrapper Dihilangkan (Hanya Ikon Murni) */
+    .stat-icon-wrapper {
+        width: auto;
+        /* Menghilangkan ukuran kotak */
+        height: auto;
+        min-width: unset;
+        background: transparent !important;
+        /* Menghilangkan background */
+        border: none !important;
+        /* Menghilangkan border jika ada */
+        margin-bottom: 2px !important;
+        /* Jarak rapat ke teks */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-icon-wrapper i,
+    .stat-icon-wrapper svg {
+        width: 28px !important;
+        /* Ukuran ikon sedikit diperbesar agar tetap menonjol */
+        height: 28px !important;
+        stroke-width: 2px;
+        /* Ketebalan garis ikon */
+        opacity: 0.9;
+        /* Sedikit transparansi agar elegan */
+    }
+
+    /* Info Teks: Ultra Micro */
+    .stat-info {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+
+    .stat-label {
+        font-size: 7px !important;
+        /* Diperkecil lagi agar ultra minimalis */
+        text-transform: uppercase !important;
+        font-weight: 500 !important;
+        letter-spacing: 0.1em !important;
+        color: var(--text-dim) !important;
+        margin: 0 !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        /* Perbaikan dari font-align */
+    }
+
+    .stat-value {
+        font-size: 11px !important;
+        font-weight: 800 !important;
+        color: #fff !important;
+        margin: 0 !important;
+        line-height: 1 !important;
+        text-align: center !important;
+    }
+
+    /* Placeholder khusus mobile agar tidak terlalu terang */
+    ::placeholder {
+        color: var(--text-muted) !important;
+        opacity: 0.7;
+    }
+
+    /* Minimalisir Header */
+    .header {
+        margin-bottom: 0.75rem !important;
+    }
+
+    /* Transform Table to Cards for Mobile */
+    .data-table thead {
+        display: none;
+    }
+
+    .data-table,
+    .data-table tbody,
+    .data-table tr,
+    .data-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .data-table tr {
+        margin-bottom: 0.75rem;
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.02);
+        padding: 0.85rem;
+    }
+
+    .data-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.4rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        font-size: 0.8rem;
+    }
+
+    .data-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.6rem;
+        color: var(--text-muted);
+    }
+
+    .data-table td:last-child {
+        border-bottom: none;
+        padding-top: 0.75rem;
+        justify-content: flex-end;
+        /* Aksi rata kanan di mobile */
+    }
+
+    /* FAB Minimalis di HP */
+    .fab-btn {
+        bottom: 1.25rem;
+        right: 1.25rem;
+        width: 48px;
+        height: 48px;
+    }
+
+    .fab-btn span {
+        display: none;
+        /* Sembunyikan teks "+ Tambah" di HP, hanya ikon */
+    }
+}
+
+/* ===================================
    Light Background Decoration
    =================================== */
 .bg-decoration {
@@ -357,79 +518,6 @@ body {
     color: #fff;
 }
 
-/* ===================================
-   Search & Filter
-   =================================== */
-.search-section {
-    display: flex;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.search-container {
-    flex: 1;
-    min-width: 280px;
-    position: relative;
-}
-
-.search-icon-svg {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 18px;
-    height: 18px;
-    color: var(--text-muted);
-}
-
-.search-input {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.75rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-sm);
-    color: var(--text-main);
-    font-size: 0.95rem;
-    transition: border-color 0.2s;
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: var(--p-500);
-}
-
-.filter-container {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.select-wrapper {
-    position: relative;
-    min-width: 150px;
-}
-
-.select-icon {
-    position: absolute;
-    left: 0.85rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 14px;
-    height: 14px;
-    color: var(--text-muted);
-}
-
-.filter-select {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.25rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-sm);
-    color: var(--text-main);
-    font-size: 0.85rem;
-    cursor: pointer;
-    appearance: none;
-}
 
 /* ===================================
    Light Data Table
@@ -886,4 +974,74 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+
+.search-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.search-container {
+    width: 100%;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 8px 0 8px;
+    border-radius: 14px;
+    background: var(--bg-surface);
+    border: 0.5px solid var(--glass-border);
+    color: var(--text-main);
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.filter-container {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.filter-container select,
+.filter-container input {
+    width: 100%;
+    height: 44px;
+    border-radius: 14px;
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    font-size: 12px;
+    text-align: center;
+    box-sizing: border-box;
+    appearance: none;
+}
+
+@media (min-width: 768px) {
+    .search-section {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .search-container {
+        flex: 1;
+    }
+
+    .filter-container {
+        display: flex;
+        width: auto;
+    }
+
+    .filter-container select,
+    .filter-container input {
+        width: 160px;
+        min-width: 160px;
+    }
 }
