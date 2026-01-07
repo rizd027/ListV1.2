@@ -119,7 +119,7 @@ function initializeEventListeners() {
     elements.togglePassword.addEventListener('click', () => togglePasswordVisibility('passwordInput', elements.togglePassword));
     elements.toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility('confirmPasswordInput', elements.toggleConfirmPassword));
 
-    elements.addBtn.addEventListener('click', openAddModal);
+    elements.addBtn.addEventListener('click', toggleAddModal);
     elements.closeModal.addEventListener('click', closeModal);
     elements.cancelBtn.addEventListener('click', closeModal);
     elements.closeConfirmModal.addEventListener('click', closeConfirmModal);
@@ -135,6 +135,35 @@ function initializeEventListeners() {
     elements.statusFilter.addEventListener('change', handleFilter);
     elements.typeFilter.addEventListener('change', handleFilter);
 
+    elements.statusFilter.addEventListener('input', debounce(() => {
+        applyFilters();
+    }, 300));
+
+    elements.categoryFilter.addEventListener('input', debounce(() => {
+        applyFilters();
+    }, 300));
+
+    // Pastikan fungsi applyFilters() mengambil .value dengan benar
+    function applyFilters() {
+        const searchTerm = elements.searchInput.value.toLowerCase();
+        const statusTerm = elements.statusFilter.value;
+        const categoryTerm = elements.categoryFilter.value;
+
+        filteredData = filmData.filter(film => {
+            const matchesSearch = film.title.toLowerCase().includes(searchTerm) ||
+                film.genre.toLowerCase().includes(searchTerm);
+
+            // Logika agar "Semua" tetap berfungsi
+            const matchesStatus = statusTerm === 'Semua Status' || statusTerm === '' || film.status === statusTerm;
+            const matchesCategory = categoryTerm === 'Semua Kategori' || categoryTerm === '' || film.category === categoryTerm;
+
+            return matchesSearch && matchesStatus && matchesCategory;
+        });
+
+        renderTable();
+        updateStats();
+    }
+
     document.querySelectorAll('th[data-sort]').forEach(th => {
         th.addEventListener('click', () => handleSort(th.dataset.sort));
     });
@@ -143,6 +172,27 @@ function initializeEventListeners() {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.add('hidden');
         });
+    });
+    // Pastikan tombol FAB memanggil fungsi openAddModal
+    if (elements.addBtn) {
+        elements.addBtn.addEventListener('click', openAddModal);
+    }
+
+    // Tombol silang (X) di pojok modal
+    if (elements.closeModal) {
+        elements.closeModal.addEventListener('click', closeModal);
+    }
+
+    // Tombol Batal di dalam form
+    if (elements.cancelBtn) {
+        elements.cancelBtn.addEventListener('click', closeModal);
+    }
+
+    // Menutup modal jika area di luar box modal di-klik (Overlay)
+    elements.modal.addEventListener('click', (e) => {
+        if (e.target === elements.modal) {
+            closeModal();
+        }
     });
 }
 
@@ -237,7 +287,7 @@ async function handleLogin() {
     }
 
     const cleanUser = user.replace(/[^a-z0-9]/g, '_');
-    showLoading(authMode === 'login' ? 'Masuk ke akun...' : 'Mendaftarkan akun...');
+    showLoading(authMode === 'login' ? 'Logging In...' : 'Registering...');
 
     try {
         const url = `${CONFIG.SHEET_API_URL}?action=${authMode}&user=${encodeURIComponent(cleanUser)}&pass=${encodeURIComponent(pass)}`;
@@ -245,18 +295,27 @@ async function handleLogin() {
         const result = await response.json();
 
         if (result.status === 'success') {
-            showToast(result.data?.message || 'Berhasil!', 'success');
+            if (authMode === 'register') {
+                // PERBAIKAN: Jika daftar berhasil, arahkan ke login
+                showToast('Pendaftaran berhasil! Silakan login.', 'success');
+                switchAuthMode('login');
+                // Kosongkan input password untuk keamanan
+                elements.passwordInput.value = '';
+                elements.confirmPasswordInput.value = '';
+            } else {
+                // Jika login berhasil
+                showToast('Berhasil Masuk!', 'success');
+                localStorage.setItem('film_username', cleanUser);
+                localStorage.setItem('film_password', pass);
+                currentUser = cleanUser;
+                currentPass = pass;
 
-            localStorage.setItem('film_username', cleanUser);
-            localStorage.setItem('film_password', pass);
-            currentUser = cleanUser;
-            currentPass = pass;
-
-            setTimeout(() => {
-                elements.loginOverlay.classList.add('hidden');
-                elements.displayUser.textContent = currentUser;
-                loadData();
-            }, 500);
+                setTimeout(() => {
+                    elements.loginOverlay.classList.add('hidden');
+                    elements.displayUser.textContent = currentUser;
+                    loadData();
+                }, 500);
+            }
         } else {
             showToast(result.message, 'error');
         }
@@ -307,7 +366,7 @@ function togglePasswordVisibility(inputId, button) {
 
 async function loadData() {
     if (!currentUser || !currentPass) return;
-    showLoading('Memuat data...');
+    showLoading('Loading Data...');
 
     try {
         if (CONFIG.USE_LOCAL_STORAGE) {
@@ -487,13 +546,13 @@ function renderTable() {
     filteredData.forEach(film => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>#${film.id}</td>
-            <td><strong>${escapeHtml(film.title)}</strong></td>
-            <td><span class="type-tag">${escapeHtml(film.type)}</span></td>
-            <td>${film.episodes || '-'}</td>
-            <td><span class="status-badge ${getStatusClass(film.status)}">${escapeHtml(film.status)}</span></td>
-            <td>${film.date ? formatDate(film.date) : '-'}</td>
-            <td>
+            <td data-label="ID">#${film.id}</td>
+            <td data-label="Judul"><strong>${escapeHtml(film.title)}</strong></td>
+            <td data-label="Tipe"><span class="type-tag">${escapeHtml(film.type)}</span></td>
+            <td data-label="Episode">${film.episodes || '-'}</td>
+            <td data-label="Status"><span class="status-badge ${getStatusClass(film.status)}">${escapeHtml(film.status)}</span></td>
+            <td data-label="Tanggal">${film.date ? formatDate(film.date) : '-'}</td>
+            <td data-label="Aksi">
                 <div class="action-buttons">
                     <button class="btn-icon" onclick="editFilm(${film.id})"><i data-lucide="edit-2"></i></button>
                     <button class="btn-icon delete" onclick="openDeleteModal(${film.id})"><i data-lucide="trash-2"></i></button>
@@ -515,17 +574,51 @@ function updateStats() {
 // ===================================
 // Handlers
 // ===================================
-function openAddModal() {
-    currentEditId = null;
-    elements.modalTitle.textContent = 'Tambah Koleksi';
-    elements.submitBtnText.textContent = 'Simpan';
-    elements.dataForm.reset();
-    elements.editId.value = '';
-    elements.dateInput.value = new Date().toISOString().split('T')[0];
-    elements.notesInput.value = '';
-    elements.modal.classList.remove('hidden');
-    lucide.createIcons();
+// ===================================
+// Handlers (REVISI)
+// ===================================
+
+// Ganti nama fungsi agar lebih sesuai dengan fungsinya saat ini
+function toggleAddModal() {
+    // Cek apakah modal sedang tersembunyi
+    const isHidden = elements.modal.classList.contains('hidden');
+
+    if (isHidden) {
+        // LOGIKA MEMBUKA MODAL
+        currentEditId = null;
+        elements.dataForm.reset();
+        elements.editId.value = '';
+        elements.modalTitle.textContent = 'Tambah Koleksi';
+        elements.submitBtnText.textContent = 'Simpan';
+
+        const today = new Date().toISOString().split('T')[0];
+        elements.dateInput.value = today;
+
+        elements.modal.classList.remove('hidden');
+        lucide.createIcons();
+
+        setTimeout(() => elements.titleInput.focus(), 100);
+    } else {
+        // LOGIKA MENUTUP MODAL (Jika diklik saat modal sudah terbuka)
+        closeModal();
+    }
 }
+
+function closeModal() {
+    elements.modal.classList.add('hidden');
+    // Bersihkan form saat ditutup agar tidak ada sisa data saat dibuka lagi
+    elements.dataForm.reset();
+    currentEditId = null;
+}
+
+// Tambahkan logika penutup modal saat menekan tombol ESC di keyboard
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeModal();
+        closeConfirmModal();
+        elements.customAlert.classList.add('hidden');
+    }
+});
 
 function openEditModal(film) {
     currentEditId = film.id;
