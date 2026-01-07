@@ -96,7 +96,7 @@
     <div id="loadingOverlay" class="loading-overlay hidden">
         <div style="text-align: center;">
             <div class="spinner" style="margin: 0 auto 1rem;"></div>
-            <p class="loading-text" style="font-size: 0.9rem; color: var(--text-dim);">Memuat data...</p>
+            <p class="loading-text" style="font-size: 0.9rem; color: var(--text-dim);">Loading...</p>
         </div>
     </div>
 
@@ -121,9 +121,9 @@
             <div class="header-content">
                 <h1 class="title">
                     <i data-lucide="clapperboard" class="title-icon-svg"></i>
-                    ListV Manager
+                    ListV
                 </h1>
-                <p class="subtitle">Kelola koleksi film dan donghua Anda</p>
+                <p class="subtitle">Kelola koleksi film</p>
             </div>
             <div class="header-actions">
                 <button id="logoutBtn">
@@ -174,32 +174,25 @@
 
         <!-- Search and Filter Section -->
         <div class="search-section">
-            <div class="search-container">
-                <i data-lucide="search" class="search-icon-svg"></i>
-                <input type="text" id="searchInput" class="search-input" placeholder="Cari koleksi...">
-            </div>
+            <div class="search-container"><input type="text" id="searchInput" class="search-input"
+                    placeholder="Cari koleksi..."> </div>
             <div class="filter-container">
-                <div class="select-wrapper">
-                    <i data-lucide="filter" class="select-icon"></i>
-                    <select id="statusFilter" class="filter-select">
-                        <option value="">Status</option>
-                        <option value="Selesai">Selesai</option>
-                        <option value="Sedang Ditonton">Sedang Ditonton</option>
-                        <option value="Rencana">Rencana</option>
-                        <option value="Ditunda">Ditunda</option>
-                        <option value="Drop">Drop</option>
-                    </select>
-                </div>
-                <div class="select-wrapper">
-                    <i data-lucide="layers" class="select-icon"></i>
-                    <select id="typeFilter" class="filter-select">
-                        <option value="">Tipe</option>
-                        <option value="Film">Film</option>
-                        <option value="Donghua">Donghua</option>
-                        <option value="Anime">Anime</option>
-                        <option value="Series">Series</option>
-                    </select>
-                </div>
+                <input type="text" id="statusFilter" list="statusOptions" class="filter-input" placeholder="Status...">
+                <datalist id="statusOptions">
+                    <option value="Semua Status">
+                    <option value="Selesai">
+                    <option value="Sedang Ditonton">
+                    <option value="Rencana">
+                    <option value="Ditunda">
+                </datalist>
+                <input type="text" id="categoryFilter" list="categoryOptions" class="filter-input"
+                    placeholder="Kategori...">
+                <datalist id="categoryOptions">
+                    <option value="Semua Kategori">
+                    <option value="Film">
+                    <option value="Donghua">
+                    <option value="Series">
+                </datalist>
             </div>
         </div>
 
@@ -235,7 +228,7 @@
                     <i data-lucide="edit-3" id="modalIcon"></i>
                     <h2 id="modalTitle">Tambah Koleksi</h2>
                 </div>
-                <button id="closeModal" class="close-btn"><i data-lucide="x"></i></button>
+                <button id="closeModal" class="close-btn"></button>
             </div>
             <form id="dataForm" class="data-form">
                 <input type="hidden" id="editId">
