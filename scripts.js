@@ -32,10 +32,7 @@ const elements = {
     tabRegister: document.getElementById('tabRegister'),
     usernameInput: document.getElementById('usernameInput'),
     passwordInput: document.getElementById('passwordInput'),
-    confirmPasswordGroup: document.getElementById('confirmPasswordGroup'),
-    confirmPasswordInput: document.getElementById('confirmPasswordInput'),
     togglePassword: document.getElementById('togglePassword'),
-    toggleConfirmPassword: document.getElementById('toggleConfirmPassword'),
     loginBtn: document.getElementById('loginBtn'),
     logoutBtn: document.getElementById('logoutBtn'),
     displayUser: document.getElementById('displayUser'),
@@ -99,8 +96,8 @@ const elements = {
 // Initialization
 // ===================================
 document.addEventListener('DOMContentLoaded', () => {
+    startSlideshow();
     initializeEventListeners();
-
     if (currentUser && currentPass) {
         elements.loginOverlay.classList.add('hidden');
         elements.displayUser.textContent = currentUser;
@@ -117,7 +114,6 @@ function initializeEventListeners() {
     elements.tabLogin.addEventListener('click', () => switchAuthMode('login'));
     elements.tabRegister.addEventListener('click', () => switchAuthMode('register'));
     elements.togglePassword.addEventListener('click', () => togglePasswordVisibility('passwordInput', elements.togglePassword));
-    elements.toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility('confirmPasswordInput', elements.toggleConfirmPassword));
 
     // Pasang Event Listeners
     fab.addEventListener('mousedown', onStart);
@@ -140,9 +136,14 @@ function initializeEventListeners() {
 
     elements.dataForm.addEventListener('submit', handleFormSubmit);
 
-    elements.searchInput.addEventListener('input', debounce(handleSearch, 300));
-    elements.statusFilter.addEventListener('change', handleFilter);
-    elements.categoryFilter.addEventListener('change', handleFilter);
+    // Ganti bagian search dan filter dengan ini:
+    elements.searchInput.addEventListener('input', debounce(() => {
+        applyFilters();
+    }, 300));
+
+    // Gunakan event 'change' atau 'input' agar saat memilih dari datalist langsung terfilter
+    elements.statusFilter.addEventListener('input', applyFilters);
+    elements.categoryFilter.addEventListener('input', applyFilters);
 
     elements.statusFilter.addEventListener('input', debounce(() => {
         applyFilters();
@@ -197,16 +198,8 @@ function updateAuthUI(mode) {
 
     // Update teks secara instan tanpa animasi
     elements.loginBtn.textContent = isLogin ? 'Masuk' : 'Daftar';
-    elements.authTitle.textContent = isLogin ? 'Akses Koleksi' : 'Buat Akun';
     elements.authSubtitle.textContent = isLogin ? 'Silakan masuk ke akun Anda' : 'Daftar untuk mulai mengelola';
     lucide.createIcons();
-
-    // Toggle confirm password secara instan
-    if (isLogin) {
-        elements.confirmPasswordGroup.classList.add('hidden');
-    } else {
-        elements.confirmPasswordGroup.classList.remove('hidden');
-    }
 }
 
 function showAlert(title, message, type = 'info') {
@@ -259,6 +252,35 @@ function hideLoading() {
     }, 200);
 }
 
+
+/* Picture Slide Show */
+function startSlideshow() {
+    const slides = document.querySelectorAll('.slide');
+    if (slides.length === 0) {
+        console.error("Slideshow: Tidak ada gambar dengan class '.slide' ditemukan.");
+        return;
+    }
+
+    let currentSlide = 0;
+
+    // Pastikan hanya satu gambar yang punya class active di awal
+    slides.forEach((slide, index) => {
+        if (index === 0) slide.classList.add('active');
+        else slide.classList.remove('active');
+    });
+
+    setInterval(() => {
+        // 1. Hilangkan class active dari gambar saat ini
+        slides[currentSlide].classList.remove('active');
+
+        // 2. Hitung index berikutnya
+        currentSlide = (currentSlide + 1) % slides.length;
+
+        // 3. Tambahkan class active ke gambar berikutnya
+        slides[currentSlide].classList.add('active');
+    }, 2000); // Berganti setiap 4 detik
+}
+
 // ===================================
 // Auth & Data API Functions
 // ===================================
@@ -269,14 +291,6 @@ async function handleLogin() {
     if (!user || !pass) {
         showToast('Username dan Password wajib diisi!', 'error');
         return;
-    }
-
-    if (authMode === 'register') {
-        const confirmPass = elements.confirmPasswordInput.value.trim();
-        if (pass !== confirmPass) {
-            showToast('Password konfirmasi tidak cocok!', 'error');
-            return;
-        }
     }
 
     const cleanUser = user.replace(/[^a-z0-9]/g, '_');
@@ -294,7 +308,6 @@ async function handleLogin() {
                 switchAuthMode('login');
                 // Kosongkan input password untuk keamanan
                 elements.passwordInput.value = '';
-                elements.confirmPasswordInput.value = '';
             } else {
                 // Jika login berhasil
                 showToast('Berhasil Masuk!', 'success');
@@ -332,11 +345,11 @@ function switchAuthMode(mode) {
     if (mode === 'login') {
         elements.tabLogin.classList.add('active');
         elements.tabRegister.classList.remove('active');
-        elements.authFooter.classList.remove('hidden');
+        elements.authFooter.classList.remove('active');
     } else {
         elements.tabLogin.classList.remove('active');
         elements.tabRegister.classList.add('active');
-        elements.authFooter.classList.add('hidden');
+        elements.authFooter.classList.add('active');
     }
     lucide.createIcons();
     updateAuthUI(mode);
@@ -364,12 +377,17 @@ function applyFilters() {
     const categoryTerm = elements.categoryFilter.value;
 
     filteredData = filmData.filter(film => {
-        const matchesSearch = film.title.toLowerCase().includes(searchTerm) ||
-            film.genre.toLowerCase().includes(searchTerm);
+        // PERBAIKAN: Gunakan 'type' karena di loadData Anda menggunakan properti 'type'
+        const title = film.title ? film.title.toLowerCase() : '';
+        const type = film.type ? film.type.toLowerCase() : '';
 
-        // Logika agar "Semua" tetap berfungsi
+        const matchesSearch = title.includes(searchTerm) || type.includes(searchTerm);
+
+        // Logika filter status
         const matchesStatus = statusTerm === 'Semua Status' || statusTerm === '' || film.status === statusTerm;
-        const matchesCategory = categoryTerm === 'Semua Kategori' || categoryTerm === '' || film.category === categoryTerm;
+
+        // PERBAIKAN: Filter kategori harus memeriksa properti 'type'
+        const matchesCategory = categoryTerm === 'Semua Kategori' || categoryTerm === '' || film.type === categoryTerm;
 
         return matchesSearch && matchesStatus && matchesCategory;
     });
@@ -395,7 +413,7 @@ async function loadData() {
                 filmData = result.data.map(item => ({
                     id: item.no,
                     title: item.judul || '',
-                    type: item.type || '',
+                    type: item.type || '', // Ini digunakan sebagai 'Kategori' di filter
                     episodes: item.episode || null,
                     status: item.status || '',
                     date: item.date || null,
@@ -982,4 +1000,6 @@ function onEnd(e) {
         }, 50);
     }
 }
+
+
 
