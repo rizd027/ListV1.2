@@ -87,102 +87,135 @@ body {
 /* --- MOBILE: Ultra-Minimalis & Proporsional (Kurang dari 768px) --- */
 @media (max-width: 768px) {
 
-    /* Grid 2x2 yang presisi */
     .stats-section {
         display: grid !important;
+        /* Menggunakan grid layout untuk mobile */
         grid-template-columns: repeat(4, 1fr) !important;
+        /* Membagi menjadi 4 kolom setara */
         gap: 8px !important;
-        /* Jarak sedikit lebih longgar agar tidak sesak */
+        /* Jarak antar kartu statistik */
         margin-bottom: 8px !important;
+        /* Margin bawah section */
         margin-top: 0 !important;
+        /* Menghapus margin atas */
     }
 
-    /* Kartu Statistik Micro-Square yang Elegan */
     .stat-card {
         display: flex;
+        /* Layout flex untuk konten kartu */
         flex-direction: column;
+        /* Arah konten vertikal (ikon di atas teks) */
         height: 100px;
+        /* Tinggi tetap kartu agar seragam */
         align-items: center;
+        /* Pusatkan konten secara horizontal */
         justify-content: center;
+        /* Pusatkan konten secara vertikal */
         padding: 6px 2px;
-        /* Padding vertikal ditambah agar proporsional */
+        /* Padding dalam kartu */
         border-radius: 16px;
-        /* Corner lebih halus/rounded */
-        background: rgba(23, 28, 41, 0.4);
+        /* Sudut melengkung halus */
+        background: var(--bg-card);
+        /* Latar belakang kartu dari variabel */
         border: 1px solid var(--glass-border);
+        /* Border tipis transparan */
     }
 
-    /* Ikon: Wrapper Dihilangkan (Hanya Ikon Murni) */
     .stat-icon-wrapper {
         width: auto;
-        /* Menghilangkan ukuran kotak */
+        /* Lebar otomatis mengikuti ukuran ikon */
         height: auto;
+        /* Tinggi otomatis */
         min-width: unset;
+        /* Menghapus batas lebar minimum */
         background: transparent !important;
-        /* Menghilangkan background */
+        /* Menghapus latar belakang pembungkus */
         border: none !important;
-        /* Menghilangkan border jika ada */
-        margin-bottom: 2px !important;
-        /* Jarak rapat ke teks */
+        /* Menghapus border pembungkus */
+        margin-bottom: 1px !important;
+        /* Jarak rapat antara ikon dan label */
         display: flex;
+        /* Layout flex untuk ikon */
         align-items: center;
+        /* Pusatkan ikon */
         justify-content: center;
+        /* Pusatkan ikon */
     }
 
     .stat-icon-wrapper i,
     .stat-icon-wrapper svg {
-        width: 28px !important;
-        /* Ukuran ikon sedikit diperbesar agar tetap menonjol */
-        height: 28px !important;
+        width: 30px !important;
+        /* Ukuran ikon diperbesar sedikit */
+        height: 30px !important;
+        /* Tinggi ikon diperbesar sedikit */
         stroke-width: 2px;
-        /* Ketebalan garis ikon */
+        /* Ketebalan garis ikon agar jelas */
         opacity: 0.9;
-        /* Sedikit transparansi agar elegan */
+        /* Transparansi halus untuk tampilan premium */
     }
 
-    /* Info Teks: Ultra Micro */
     .stat-info {
         display: flex !important;
+        /* Layout flex untuk informasi teks */
         flex-direction: column !important;
+        /* Teks ditumpuk secara vertikal */
         align-items: center !important;
+        /* Teks rata tengah */
         justify-content: center !important;
+        /* Pusatkan teks */
         width: 100% !important;
+        /* Lebar penuh */
     }
 
     .stat-label {
-        font-size: 7px !important;
-        /* Diperkecil lagi agar ultra minimalis */
+        font-size: 8px !important;
+        /* Ukuran teks label sangat kecil (ultra minimalis) */
         text-transform: uppercase !important;
+        /* Huruf kapital untuk estetika */
         font-weight: 500 !important;
+        /* Ketebalan teks sedang */
         letter-spacing: 0.1em !important;
+        /* Jarak antar huruf lebih lebar */
         color: var(--text-dim) !important;
+        /* Warna teks redup */
         margin: 0 !important;
+        /* Menghapus margin default */
         line-height: 1.2 !important;
+        /* Tinggi baris rapat */
         text-align: center !important;
-        /* Perbaikan dari font-align */
+        /* Teks rata tengah */
     }
 
     .stat-value {
         font-size: 11px !important;
+        /* Ukuran angka statistik */
         font-weight: 800 !important;
+        /* Angka dibuat sangat tebal */
         color: #fff !important;
-        margin: 0 !important;
+        /* Warna putih kontras */
+        margin-top: 4px !important;
+        /* Jarak kecil dari label */
         line-height: 1 !important;
+        /* Tinggi baris minimal */
         text-align: center !important;
+        /* Angka rata tengah */
     }
 
-    /* Placeholder khusus mobile agar tidak terlalu terang */
     ::placeholder {
         color: var(--text-muted) !important;
+        /* Warna placeholder input */
         opacity: 0.7;
+        /* Transparansi placeholder */
     }
 
-    /* Minimalisir Header */
+    /* ===================================
+       Table - Responsive Mobile Optimization
+       =================================== */
+
     .header {
-        margin-bottom: 0.75rem !important;
+        margin-bottom: 1rem !important;
     }
 
-    /* Transform Table to Cards for Mobile */
     .data-table thead {
         display: none;
     }
@@ -196,48 +229,58 @@ body {
     }
 
     .data-table tr {
-        margin-bottom: 0.75rem;
+        background: var(--bg-card);
         border: 1px solid var(--glass-border);
         border-radius: var(--radius-md);
-        background: rgba(255, 255, 255, 0.02);
-        padding: 0.85rem;
+        padding: 12px 16px;
+        margin-bottom: 12px;
+        box-shadow: var(--shadow-premium);
     }
 
     .data-table td {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0.4rem 0;
+        padding: 10px 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        font-size: 0.8rem;
-    }
-
-    .data-table td::before {
-        content: attr(data-label);
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.6rem;
-        color: var(--text-muted);
+        font-size: 13px;
     }
 
     .data-table td:last-child {
         border-bottom: none;
-        padding-top: 0.75rem;
-        justify-content: flex-end;
-        /* Aksi rata kanan di mobile */
     }
 
-    /* FAB Minimalis di HP */
-    .fab-btn {
-        bottom: 1.25rem;
-        right: 1.25rem;
-        width: 48px;
-        height: 48px;
+    .data-table td::before {
+        content: attr(data-label);
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
+
+    /* ===================================
+       FAB Mobile: Revert to Standard Floating Button
+       =================================== */
+    .fab-btn {
+        top: auto;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        border-radius: 50%;
+        width: 56px;
+        height: 56px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-color);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+
 
     .fab-btn span {
         display: none;
-        /* Sembunyikan teks "+ Tambah" di HP, hanya ikon */
     }
 }
 
@@ -304,24 +347,25 @@ body {
    =================================== */
 .fab-btn {
     position: fixed;
-    bottom: 2.5rem;
-    right: 2.5rem;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
     z-index: 4000;
     background: linear-gradient(135deg, var(--p-500), var(--p-700));
     color: white;
     border: none;
-    padding: 1rem;
-    border-radius: 100px;
+    padding: 0.8rem 1rem 0.8rem 1.2rem;
+    border-radius: 30px 0 0 30px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
+    justify-content: flex-start;
+    gap: 0.5rem;
     cursor: pointer;
-    box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
+    box-shadow: -5px 5px 20px rgba(0, 0, 0, 0.2);
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     overflow: hidden;
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
 }
 
 .fab-btn i {
@@ -330,28 +374,17 @@ body {
 }
 
 .fab-btn span {
-    font-weight: 700;
-    font-size: 0.95rem;
+    font-weight: 600;
+    font-size: 0.9rem;
     white-space: nowrap;
     opacity: 0;
-    width: 0;
+    max-width: 0;
     transition: all 0.3s var(--ease);
 }
 
-.fab-btn:hover {
-    width: 140px;
-    padding: 1rem 1.5rem;
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.6);
-}
-
-.fab-btn:hover span {
-    opacity: 1;
-    width: auto;
-}
 
 .fab-btn:active {
-    transform: scale(0.95);
+    transform: translateY(-50%) scale(0.95);
 }
 
 /* Hide FAB when login overlay is visible */
@@ -798,7 +831,6 @@ body {
     width: 100%;
     max-width: 400px;
     padding: 2.5rem 2rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 .login-header {
@@ -806,25 +838,37 @@ body {
     margin-bottom: 2rem;
 }
 
+.login-header h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.login-header p {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+}
+
 .auth-tabs {
     display: flex;
     background: rgba(255, 255, 255, 0.03);
-    padding: 0.3rem;
-    border-radius: 14px;
-    margin-bottom: 2rem;
+    padding: 0.25rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
     border: 1px solid var(--glass-border);
 }
 
 .auth-tab {
     flex: 1;
-    padding: 0.7rem;
+    padding: 0.75rem;
     border: none;
-    background: transparent;
-    color: var(--p-300);
-    font-weight: 700;
-    font-size: 0.85rem;
+    background: none;
+    color: var(--text-dim);
+    font-weight: 600;
+    border-radius: 10px;
     cursor: pointer;
-    border-radius: 11px;
+    transition: all 0.2s var(--ease);
 }
 
 .auth-tab.active {
@@ -835,50 +879,27 @@ body {
 
 .password-toggle {
     position: absolute;
-    right: 0.85rem;
+    right: 1rem;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: var(--p-400);
+    color: var(--text-muted);
     cursor: pointer;
-    padding: 0.25rem;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .password-toggle:hover {
-    color: var(--p-200);
+    color: var(--text-main);
 }
 
-/* Field Registrasi (No Transition) */
-#confirmPasswordGroup {
-    display: block !important;
-    max-height: 0;
-    opacity: 0;
-    margin-top: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-#confirmPasswordGroup:not(.hidden) {
-    max-height: 100px;
-    opacity: 1;
-    margin-top: 1rem;
-    pointer-events: auto;
-}
-
-/* Footer Login & Link WhatsApp */
 .auth-footer {
-    margin-top: 1.5rem;
     text-align: center;
-    border-top: 1px solid var(--glass-border);
-    padding-top: 1.25rem;
-}
-
-.auth-footer p {
-    font-size: 0.85rem;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
     color: var(--text-dim);
 }
 
@@ -886,69 +907,68 @@ body {
     color: var(--p-400);
     text-decoration: none;
     font-weight: 600;
-    transition: color 0.2s var(--ease);
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
+    margin-left: 0.25rem;
 }
 
 .wa-link:hover {
-    color: var(--p-300);
     text-decoration: underline;
 }
 
-/* Sembunyikan footer saat mode registrasi agar lebih rapi */
-.auth-footer.hidden {
-    display: none;
+/* ===================================
+   Utilities
+   =================================== */
+.hidden {
+    display: none !important;
 }
 
-/* ===================================
-   Light Loading Spinner
-   =================================== */
+.text-warning {
+    color: var(--warning);
+}
+
+/* Loading Overlay */
 .loading-overlay {
     position: fixed;
     inset: 0;
     background: rgba(8, 10, 15, 0.8);
-    z-index: 7000;
+    z-index: 6000;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 
 .spinner {
-    width: 36px;
-    height: 36px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(99, 102, 241, 0.3);
     border-radius: 50%;
     border-top-color: var(--p-500);
-    animation: spin-light 0.6s linear infinite;
+    animation: spin 1s linear infinite;
 }
 
-@keyframes spin-light {
+@keyframes spin {
     to {
         transform: rotate(360deg);
     }
 }
 
-/* ===================================
-   Light Toast Notification
-   =================================== */
+/* Toast */
 .toast {
     position: fixed;
     bottom: 2rem;
     left: 50%;
     transform: translateX(-50%) translateY(100px);
-    background: rgba(23, 28, 41, 0.95);
+    background: var(--bg-surface);
     border: 1px solid var(--glass-border);
     padding: 0.75rem 1.25rem;
-    border-radius: 12px;
+    border-radius: 100px;
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    z-index: 9999;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    gap: 0.75rem;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+    z-index: 7000;
     opacity: 0;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .toast.active {
@@ -959,6 +979,10 @@ body {
 .toast-icon {
     display: flex;
     align-items: center;
+    justify-content: center;
+}
+
+.toast.success .toast-icon {
     color: var(--success);
 }
 
@@ -969,79 +993,123 @@ body {
 .toast-message {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #fff;
 }
 
-.hidden {
-    display: none !important;
-}
-
+/* ===================================
+   Search Section
+   =================================== */
 
 .search-section {
-    width: 100%;
     display: flex;
+    /* Menggunakan layout flexbox */
     flex-direction: column;
+    /* Mengatur arah elemen secara vertikal pada mobile */
     gap: 10px;
-    margin-bottom: 1rem;
+    /* Jarak antar elemen di dalam section */
+    width: 100%;
+    /* Lebar penuh container */
+    margin-bottom: 8px !important;
+    /* Jarak margin ke bawah */
 }
 
 .search-container {
-    width: 100%;
     position: relative;
+    /* Posisi relatif sebagai acuan elemen absolut di dalamnya */
+    width: 100%;
+    /* Lebar penuh */
 }
 
 .search-input {
     width: 100%;
-    height: 44px;
-    padding: 0 8px 0 8px;
-    border-radius: 14px;
+    /* Lebar input penuh */
+    height: 34px;
+    /* Tinggi standard input */
+    padding: 0 12px 0 12px;
+    /* Padding kiri lebih besar untuk ruang ikon */
+    border-radius: 8px;
+    /* Membuat sudut membulat */
     background: var(--bg-surface);
-    border: 0.5px solid var(--glass-border);
+    /* Warna latar dari variabel tema */
+    border: 1px solid var(--glass-border);
+    /* Border tipis transparan */
     color: var(--text-main);
+    /* Warna teks utama */
     font-size: 13px;
+    /* Ukuran font teks */
     box-sizing: border-box;
+    /* Memastikan padding tidak menambah lebar total */
 }
 
 .filter-container {
-    width: 100%;
     display: grid;
+    /* Menggunakan layout grid */
     grid-template-columns: 1fr 1fr;
+    /* Membagi menjadi 2 kolom sejajar pada mobile */
     gap: 10px;
+    /* Jarak antar elemen filter */
 }
 
-.filter-container select,
-.filter-container input {
+.filter-input {
     width: 100%;
-    height: 44px;
-    border-radius: 14px;
+    /* Lebar penuh dalam kolom grid */
+    height: 34px;
+    /* Tinggi seragam dengan search input */
+    border-radius: 8px;
+    /* Membuat sudut membulat */
     background: var(--bg-surface);
+    /* Warna latar */
     border: 1px solid var(--glass-border);
+    /* Border */
     color: var(--text-main);
+    /* Warna teks */
     font-size: 12px;
-    text-align: center;
+    /* Ukuran font filter */
+    padding: 0 12px 0 12px;
+    /* Padding kiri lebih besar untuk ruang ikon */
     box-sizing: border-box;
+    /* Box model border-box */
     appearance: none;
+    /* Menghilangkan styling default browser */
 }
 
 @media (min-width: 768px) {
     .search-section {
         flex-direction: row;
+        /* Mengubah arah menjadi horizontal pada layar desktop */
         align-items: center;
-        gap: 12px;
+        /* Menyejajarkan elemen secara vertikal di tengah */
     }
 
     .search-container {
         flex: 1;
+        /* Mengambil sisa ruang yang tersedia */
     }
 
     .filter-container {
         display: flex;
-        width: auto;
+        /* Mengubah layout grid menjadi flex pada layar lebar */
     }
 
-    .filter-container select,
-    .filter-container input {
+    .filter-input {
         width: 160px;
+        /* Memberikan lebar tetap pada desktop */
         min-width: 160px;
+        /* Memastikan lebar minimum konsisten */
     }
+}
+
+#addBtn {
+    position: fixed;
+    right: 0px;
+    bottom: 20px;
+    /* Posisi awal */
+    z-index: 999;
+    cursor: grab;
+    touch-action: none;
+    /* Penting untuk mobile agar tidak scroll saat geser */
+    user-select: none;
+}
+
+#addBtn:active {
+    cursor: grabbing;
 }
