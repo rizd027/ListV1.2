@@ -89,7 +89,14 @@ const elements = {
     totalCount: document.getElementById('totalCount'),
     completedCount: document.getElementById('completedCount'),
     watchingCount: document.getElementById('watchingCount'),
-    plannedCount: document.getElementById('plannedCount')
+    plannedCount: document.getElementById('plannedCount'),
+
+    filmModal: document.getElementById('filmModal'),
+    modalTitle: document.getElementById('modalTitle'),
+    filmForm: document.getElementById('filmForm'),
+    submitBtnText: document.getElementById('submitBtnText'),
+    addBtn: document.getElementById('addBtn'), // Tombol FAB
+    cancelBtn: document.getElementById('cancelBtn'), // Tombol Batal
 };
 
 // ===================================
@@ -116,13 +123,7 @@ function initializeEventListeners() {
     elements.togglePassword.addEventListener('click', () => togglePasswordVisibility('passwordInput', elements.togglePassword));
 
     // Pasang Event Listeners
-    fab.addEventListener('mousedown', onStart);
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onEnd);
-
-    fab.addEventListener('touchstart', onStart, { passive: true });
-    document.addEventListener('touchmove', onMove, { passive: false });
-    document.addEventListener('touchend', onEnd);
+    // Event listeners for FAB are handled in initFabDrag
 
     elements.addBtn.addEventListener('click', toggleAddModal);
     elements.closeModal.addEventListener('click', closeModal);
@@ -188,6 +189,23 @@ function initializeEventListeners() {
     if (elements.addBtn) {
         initFabDrag(elements.addBtn);
     }
+
+    // Tombol Tambah (FAB)
+    if (elements.addBtn) {
+        elements.addBtn.addEventListener('click', openAddModal);
+    }
+
+    // Tombol Batal di dalam modal
+    if (elements.cancelBtn) {
+        elements.cancelBtn.addEventListener('click', closeFormModal);
+    }
+
+    // Menutup modal jika klik di luar area modal
+    window.addEventListener('click', (e) => {
+        if (e.target === elements.filmModal) {
+            closeFormModal();
+        }
+    });
 }
 
 // ===================================
@@ -252,33 +270,50 @@ function hideLoading() {
     }, 200);
 }
 
-
-/* Picture Slide Show */
+// ===================================
+// Slideshow Functions
+// ===================================
 function startSlideshow() {
-    const slides = document.querySelectorAll('.slide');
-    if (slides.length === 0) {
-        console.error("Slideshow: Tidak ada gambar dengan class '.slide' ditemukan.");
-        return;
-    }
+    const containers = document.querySelectorAll('.slideshow-container');
 
-    let currentSlide = 0;
+    containers.forEach(container => {
+        const slides = container.querySelectorAll('.slide');
+        if (slides.length === 0) return;
 
-    // Pastikan hanya satu gambar yang punya class active di awal
-    slides.forEach((slide, index) => {
-        if (index === 0) slide.classList.add('active');
-        else slide.classList.remove('active');
+        let currentSlide = 0;
+
+        // Inisialisasi
+        slides.forEach((s, i) => {
+            s.classList.remove('active');
+            if (i === 0) s.classList.add('active');
+        });
+
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 5000);
     });
+}
 
-    setInterval(() => {
-        // 1. Hilangkan class active dari gambar saat ini
-        slides[currentSlide].classList.remove('active');
+// ===================================
+// Modal Functions
+// ===================================
+function openAddModal() {
+    currentEditId = null; // Pastikan ID null karena ini data baru
+    elements.modalTitle.textContent = 'Tambah Data Baru';
+    elements.submitBtnText.textContent = 'Simpan';
+    elements.filmForm.reset();
 
-        // 2. Hitung index berikutnya
-        currentSlide = (currentSlide + 1) % slides.length;
+    // Tampilkan modal
+    elements.filmModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Kunci scroll layar belakang
+}
 
-        // 3. Tambahkan class active ke gambar berikutnya
-        slides[currentSlide].classList.add('active');
-    }, 2000); // Berganti setiap 4 detik
+// Tambahkan juga fungsi penutup modal agar tidak error nanti
+function closeFormModal() {
+    elements.filmModal.classList.add('hidden');
+    document.body.style.overflow = 'auto'; // Aktifkan scroll kembali
 }
 
 // ===================================
@@ -938,67 +973,78 @@ function escapeHtml(text) {
 // ===================================
 // Draggable FAB Logic
 // ===================================
-const fab = document.getElementById('addBtn');
-let isDragging = false;
-let startY;
-let initialTop;
-let dragThreshold = 5; // Toleransi gerakan dalam pixel
-let wasDragged = false;
+function initFabDrag(fabElement) {
+    if (!fabElement) return;
 
-function onStart(e) {
-    isDragging = true;
-    wasDragged = false; // Reset status setiap kali ditekan
+    let isDragging = false;
+    let startY;
+    let initialTop;
+    let dragThreshold = 5; // Toleransi gerakan dalam pixel
+    let wasDragged = false;
 
-    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-    startY = clientY;
+    function onStart(e) {
+        isDragging = true;
+        wasDragged = false; // Reset status setiap kali ditekan
 
-    const rect = fab.getBoundingClientRect();
-    initialTop = rect.top;
+        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+        startY = clientY;
 
-    fab.style.transition = 'none';
-}
+        const rect = fabElement.getBoundingClientRect();
+        initialTop = rect.top;
 
-function onMove(e) {
-    if (!isDragging) return;
-
-    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-    const deltaY = clientY - startY;
-
-    // Jika gerakan melebihi threshold, tandai sebagai "sedang menggeser"
-    if (Math.abs(deltaY) > dragThreshold) {
-        wasDragged = true;
-
-        let newTop = initialTop + deltaY;
-        const padding = 20;
-        const maxTop = window.innerHeight - fab.offsetHeight - padding;
-
-        if (newTop < padding) newTop = padding;
-        if (newTop > maxTop) newTop = maxTop;
-
-        fab.style.top = `${newTop}px`;
-        fab.style.bottom = 'auto';
+        fabElement.style.transition = 'none';
     }
-}
 
-function onEnd(e) {
-    if (!isDragging) return;
-    isDragging = false;
+    function onMove(e) {
+        if (!isDragging) return;
 
-    fab.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+        const deltaY = clientY - startY;
 
-    // Kuncinya ada di sini:
-    // Jika wasDragged true, kita pasang penghalang klik sementara.
-    if (wasDragged) {
-        const preventClick = (event) => {
-            event.stopImmediatePropagation();
-            event.preventDefault();
-        };
-        // Gunakan {capture: true} dan hilangkan setelah 50ms
-        fab.addEventListener('click', preventClick, { capture: true, once: true });
-        setTimeout(() => {
-            fab.removeEventListener('click', preventClick, { capture: true });
-        }, 50);
+        // Jika gerakan melebihi threshold, tandai sebagai "sedang menggeser"
+        if (Math.abs(deltaY) > dragThreshold) {
+            wasDragged = true;
+
+            let newTop = initialTop + deltaY;
+            const padding = 20;
+            const maxTop = window.innerHeight - fabElement.offsetHeight - padding;
+
+            if (newTop < padding) newTop = padding;
+            if (newTop > maxTop) newTop = maxTop;
+
+            fabElement.style.top = `${newTop}px`;
+            fabElement.style.bottom = 'auto';
+        }
     }
+
+    function onEnd(e) {
+        if (!isDragging) return;
+        isDragging = false;
+
+        fabElement.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+        // Kuncinya ada di sini:
+        // Jika wasDragged true, kita pasang penghalang klik sementara.
+        if (wasDragged) {
+            const preventClick = (event) => {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+            };
+            // Gunakan {capture: true} dan hilangkan setelah 50ms
+            fabElement.addEventListener('click', preventClick, { capture: true, once: true });
+            setTimeout(() => {
+                fabElement.removeEventListener('click', preventClick, { capture: true });
+            }, 50);
+        }
+    }
+
+    fabElement.addEventListener('mousedown', onStart);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+
+    fabElement.addEventListener('touchstart', onStart, { passive: true });
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
 }
 
 
