@@ -97,6 +97,14 @@
                 </div>
             </div>
         </div>
+        <div class="slideshow-container overlay-bg">
+            <img src="assets/PNG_Preview/a1.png" class="slide active">
+            <img src="assets/PNG_Preview/a2.png" class="slide">
+            <img src="assets/PNG_Preview/a3.png" class="slide">
+            <img src="assets/PNG_Preview/a4.png" class="slide">
+        </div>
+
+        <div class="overlay-darkener"></div>
     </div>
 
     <!-- Custom Alert Modal -->
@@ -135,24 +143,23 @@
         <i data-lucide="plus"></i>
     </button>
 
+    <header class="header">
+        <div class="header-content">
+            <h1 class="title">
+                <i data-lucide="clapperboard" class="title-icon-svg"></i>
+                ListV
+            </h1>
+            <p class="subtitle">Kelola koleksi film</p>
+        </div>
+        <div class="header-actions">
+            <button class="logoutBtn" id="logoutBtn">
+                <i data-lucide="log-out"></i> Keluar dari <span id="displayUser"></span>
+            </button>
+        </div>
+    </header>
+
     <!-- Main Container -->
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <h1 class="title">
-                    <i data-lucide="clapperboard" class="title-icon-svg"></i>
-                    ListV
-                </h1>
-                <p class="subtitle">Kelola koleksi film</p>
-            </div>
-            <div class="header-actions">
-                <button id="logoutBtn">
-                    <i data-lucide="log-out"></i> Keluar dari <span id="displayUser"></span>
-                </button>
-            </div>
-        </header>
-
         <!-- Stats Section -->
         <div class="stats-section">
             <div class="stat-card">
@@ -231,7 +238,7 @@
                         <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody">
+                <tbody class="tableBody" id="tableBody">
                     <!-- Data will be populated here -->
                 </tbody>
             </table>
