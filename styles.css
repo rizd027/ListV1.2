@@ -58,7 +58,7 @@
 
 body {
     font-family: 'Outfit', sans-serif;
-    background-color: var(--bg-deep);
+    background: linear-gradient(180deg, rgba(3, 0, 17, 0.95) 0%, rgba(11, 0, 19, 0.9) 100%);
     color: var(--text-main);
     line-height: 1.5;
     min-height: 100vh;
@@ -113,6 +113,7 @@ body {
     justify-content: center;
     gap: 0.75rem;
     margin-bottom: 0.5rem;
+
     /* Efek Text Shimmer (Gradasi Berjalan) */
     background: linear-gradient(90deg,
             var(--text-main) 0%,
@@ -195,13 +196,14 @@ body {
    Layout Components
    =================================== */
 .container {
-    max-width: 1500px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 0 1.25rem;
 }
 
 .header {
     position: sticky;
+    width: 100;
     top: 0;
     z-index: 1000;
     background: transparent;
@@ -210,9 +212,15 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 0;
+    padding-top: 6px;
+    padding-bottom: 18px;
+    padding-left: 24px !important;
+    padding-right: 24px !important;
     margin-bottom: 2rem;
     transition: all 0.3s ease;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
 }
 
 .title {
@@ -249,7 +257,7 @@ body {
 .subtitle {
     color: var(--text-dim);
     font-size: 0.95rem;
-    margin-top: 0.15rem;
+    margin-top: 2px !important;
 }
 
 .header-actions {
@@ -382,7 +390,7 @@ body {
     transform: translateY(-1px);
 }
 
-#logoutBtn {
+.logoutBtn {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--glass-border);
     color: var(--text-dim);
@@ -392,13 +400,13 @@ body {
     align-items: center;
     gap: 0.6rem;
     padding: 0.5rem 1rem;
-    border-radius: 100px;
+    border-radius: 10px;
     font-weight: 500;
     transition: all 0.3s var(--ease);
     backdrop-filter: blur(8px);
 }
 
-#logoutBtn:hover {
+.logoutBtn:hover {
     background: rgba(239, 68, 68, 0.08);
     border-color: rgba(239, 68, 68, 0.3);
     color: var(--danger);
@@ -407,13 +415,13 @@ body {
 }
 
 
-#logoutBtn i {
+.logoutBtn i {
     width: 16px !important;
     height: 16px !important;
     transition: transform 0.3s var(--ease);
 }
 
-#logoutBtn:hover i {
+.logoutBtn:hover i {
     transform: translateX(-3px);
 }
 
@@ -758,12 +766,29 @@ body {
 .login-overlay {
     position: fixed;
     inset: 0;
-    background: linear-gradient(135deg, #12011a, #001a33);
     z-index: 5000;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    background: #000;
+    /* Warna dasar jika gambar belum muncul */
+    overflow: hidden;
+}
+
+.overlay-bg .slide {
+    filter: blur(8px) brightness(0.4);
+    /* Memberikan efek sinematik */
+    transform: scale(1.1);
+    /* Sedikit lebih besar agar blur tidak terlihat di pinggir */
+}
+
+/* Lapisan gradien agar form lebih menonjol */
+.overlay-darkener {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.7) 100%);
+    z-index: 2;
 }
 
 .login-card {
@@ -771,10 +796,10 @@ body {
     flex-direction: row;
     max-width: 900px;
     width: 100%;
-    
+
     /* Kunci tinggi di sini */
-    height: 600px; 
-    
+    height: 600px;
+    z-index: 3;
     background: linear-gradient(180deg, rgba(0, 26, 51, 0.95) 0%, rgba(19, 0, 32, 0.9) 100%);
     border-radius: 24px;
     overflow: hidden;
@@ -1248,9 +1273,9 @@ body {
     }
 
     .table-container {
-    background: none;
-    border: none;
-}
+        background: none;
+        border: none;
+    }
 
     .data-table,
     .data-table tbody,
@@ -1309,6 +1334,8 @@ body {
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
+
+
     .fab-btn span {
         display: none;
     }
@@ -1338,4 +1365,3 @@ body {
         margin-bottom: 1rem;
     }
 }
-
