@@ -68,7 +68,7 @@ const elements = {
     // Inputs
     searchInput: document.getElementById('searchInput'),
     statusFilter: document.getElementById('statusFilter'),
-    typeFilter: document.getElementById('typeFilter'),
+    categoryFilter: document.getElementById('categoryFilter'),
 
     // Form Inputs
     editId: document.getElementById('editId'),
@@ -119,6 +119,15 @@ function initializeEventListeners() {
     elements.togglePassword.addEventListener('click', () => togglePasswordVisibility('passwordInput', elements.togglePassword));
     elements.toggleConfirmPassword.addEventListener('click', () => togglePasswordVisibility('confirmPasswordInput', elements.toggleConfirmPassword));
 
+    // Pasang Event Listeners
+    fab.addEventListener('mousedown', onStart);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+
+    fab.addEventListener('touchstart', onStart, { passive: true });
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+
     elements.addBtn.addEventListener('click', toggleAddModal);
     elements.closeModal.addEventListener('click', closeModal);
     elements.cancelBtn.addEventListener('click', closeModal);
@@ -133,7 +142,7 @@ function initializeEventListeners() {
 
     elements.searchInput.addEventListener('input', debounce(handleSearch, 300));
     elements.statusFilter.addEventListener('change', handleFilter);
-    elements.typeFilter.addEventListener('change', handleFilter);
+    elements.categoryFilter.addEventListener('change', handleFilter);
 
     elements.statusFilter.addEventListener('input', debounce(() => {
         applyFilters();
@@ -142,27 +151,6 @@ function initializeEventListeners() {
     elements.categoryFilter.addEventListener('input', debounce(() => {
         applyFilters();
     }, 300));
-
-    // Pastikan fungsi applyFilters() mengambil .value dengan benar
-    function applyFilters() {
-        const searchTerm = elements.searchInput.value.toLowerCase();
-        const statusTerm = elements.statusFilter.value;
-        const categoryTerm = elements.categoryFilter.value;
-
-        filteredData = filmData.filter(film => {
-            const matchesSearch = film.title.toLowerCase().includes(searchTerm) ||
-                film.genre.toLowerCase().includes(searchTerm);
-
-            // Logika agar "Semua" tetap berfungsi
-            const matchesStatus = statusTerm === 'Semua Status' || statusTerm === '' || film.status === statusTerm;
-            const matchesCategory = categoryTerm === 'Semua Kategori' || categoryTerm === '' || film.category === categoryTerm;
-
-            return matchesSearch && matchesStatus && matchesCategory;
-        });
-
-        renderTable();
-        updateStats();
-    }
 
     document.querySelectorAll('th[data-sort]').forEach(th => {
         th.addEventListener('click', () => handleSort(th.dataset.sort));
@@ -194,6 +182,11 @@ function initializeEventListeners() {
             closeModal();
         }
     });
+
+    // Initialize FAB Dragging
+    if (elements.addBtn) {
+        initFabDrag(elements.addBtn);
+    }
 }
 
 // ===================================
@@ -362,6 +355,27 @@ function togglePasswordVisibility(inputId, button) {
         }
         lucide.createIcons();
     }
+}
+
+// Pastikan fungsi applyFilters() mengambil .value dengan benar
+function applyFilters() {
+    const searchTerm = elements.searchInput.value.toLowerCase();
+    const statusTerm = elements.statusFilter.value;
+    const categoryTerm = elements.categoryFilter.value;
+
+    filteredData = filmData.filter(film => {
+        const matchesSearch = film.title.toLowerCase().includes(searchTerm) ||
+            film.genre.toLowerCase().includes(searchTerm);
+
+        // Logika agar "Semua" tetap berfungsi
+        const matchesStatus = statusTerm === 'Semua Status' || statusTerm === '' || film.status === statusTerm;
+        const matchesCategory = categoryTerm === 'Semua Kategori' || categoryTerm === '' || film.category === categoryTerm;
+
+        return matchesSearch && matchesStatus && matchesCategory;
+    });
+
+    renderTable();
+    updateStats();
 }
 
 async function loadData() {
@@ -635,7 +649,7 @@ function openEditModal(film) {
     lucide.createIcons();
 }
 
-function closeModal() { elements.modal.classList.add('hidden'); }
+
 function openDeleteModal(id) { currentEditId = id; elements.confirmModal.classList.remove('hidden'); }
 function closeConfirmModal() { elements.confirmModal.classList.add('hidden'); }
 
@@ -671,17 +685,200 @@ async function confirmDelete() {
 function handleSearch() { applyFilters(elements.searchInput.value.toLowerCase()); }
 function handleFilter() { applyFilters(elements.searchInput.value.toLowerCase()); }
 
-function applyFilters(searchTerm = '') {
-    const statusFilter = elements.statusFilter.value;
-    const typeFilter = elements.typeFilter.value;
-    filteredData = filmData.filter(film => {
-        const matchesSearch = !searchTerm || film.title.toLowerCase().includes(searchTerm);
-        const matchesStatus = !statusFilter || film.status === statusFilter;
-        const matchesType = !typeFilter || film.type === typeFilter;
-        return matchesSearch && matchesStatus && matchesType;
+function handleSort(column) {
+    if (sortColumn === column) sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    else { sortColumn = column; sortDirection = 'asc'; }
+    filteredData.sort((a, b) => {
+        let aVal = a[column], bVal = b[column];
+        if (aVal == null) return 1; if (bVal == null) return -1;
+        if (typeof aVal === 'string') { aVal = aVal.toLowerCase(); bVal = bVal.toLowerCase(); }
+        return aVal < bVal ? (sortDirection === 'asc' ? -1 : 1) : (sortDirection === 'asc' ? 1 : -1);
     });
     renderTable();
 }
+
+function debounce(func, wait) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+}
+
+window.editFilm = id => { const film = filmData.find(f => f.id === id); if (film) openEditModal(film); };
+window.openDeleteModal = openDeleteModal;
+
+function getStatusClass(status) {
+    const map = { 'Selesai': 'status-selesai', 'Sedang Ditonton': 'status-sedang-ditonton', 'Rencana': 'status-rencana', 'Ditunda': 'status-ditunda', 'Drop': 'status-drop' };
+    return map[status] || '';
+}
+
+function formatDate(date) {
+}
+
+async function silentLoadData() {
+    try {
+        const url = `${CONFIG.SHEET_API_URL}?action=read&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            filmData = result.data.map(item => ({
+                id: item.no,
+                title: item.judul || '',
+                type: item.type || '',
+                episodes: item.episode || null,
+                status: item.status || '',
+                date: item.date || null,
+                notes: item.notes || '',
+                rowIndex: item.rowIndex
+            }));
+            applyFilters(elements.searchInput.value.toLowerCase());
+            updateStats();
+        }
+    } catch (e) {
+        console.log("Silent update failed");
+    }
+}
+
+// ===================================
+// UI Rendering
+// ===================================
+function renderTable() {
+    elements.tableBody.innerHTML = '';
+    if (filteredData.length === 0) {
+        elements.emptyState.classList.remove('hidden');
+        return;
+    }
+    elements.emptyState.classList.add('hidden');
+
+    filteredData.forEach(film => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td data-label="ID">#${film.id}</td>
+            <td data-label="Judul"><strong>${escapeHtml(film.title)}</strong></td>
+            <td data-label="Tipe"><span class="type-tag">${escapeHtml(film.type)}</span></td>
+            <td data-label="Episode">${film.episodes || '-'}</td>
+            <td data-label="Status"><span class="status-badge ${getStatusClass(film.status)}">${escapeHtml(film.status)}</span></td>
+            <td data-label="Tanggal">${film.date ? formatDate(film.date) : '-'}</td>
+            <td data-label="Aksi">
+                <div class="action-buttons">
+                    <button class="btn-icon" onclick="editFilm(${film.id})"><i data-lucide="edit-2"></i></button>
+                    <button class="btn-icon delete" onclick="openDeleteModal(${film.id})"><i data-lucide="trash-2"></i></button>
+                </div>
+            </td>
+        `;
+        elements.tableBody.appendChild(row);
+    });
+    lucide.createIcons();
+}
+
+function updateStats() {
+    elements.totalCount.textContent = filmData.length;
+    elements.completedCount.textContent = filmData.filter(f => f.status === 'Selesai').length;
+    elements.watchingCount.textContent = filmData.filter(f => f.status === 'Sedang Ditonton').length;
+    elements.plannedCount.textContent = filmData.filter(f => f.status === 'Rencana').length;
+}
+
+// ===================================
+// Handlers
+// ===================================
+// ===================================
+// Handlers (REVISI)
+// ===================================
+
+// Ganti nama fungsi agar lebih sesuai dengan fungsinya saat ini
+function toggleAddModal() {
+    // Cek apakah modal sedang tersembunyi
+    const isHidden = elements.modal.classList.contains('hidden');
+
+    if (isHidden) {
+        // LOGIKA MEMBUKA MODAL
+        currentEditId = null;
+        elements.dataForm.reset();
+        elements.editId.value = '';
+        elements.modalTitle.textContent = 'Tambah Koleksi';
+        elements.submitBtnText.textContent = 'Simpan';
+
+        const today = new Date().toISOString().split('T')[0];
+        elements.dateInput.value = today;
+
+        elements.modal.classList.remove('hidden');
+        lucide.createIcons();
+
+        setTimeout(() => elements.titleInput.focus(), 100);
+    } else {
+        // LOGIKA MENUTUP MODAL (Jika diklik saat modal sudah terbuka)
+        closeModal();
+    }
+}
+
+function closeModal() {
+    elements.modal.classList.add('hidden');
+    // Bersihkan form saat ditutup agar tidak ada sisa data saat dibuka lagi
+    elements.dataForm.reset();
+    currentEditId = null;
+}
+
+// Tambahkan logika penutup modal saat menekan tombol ESC di keyboard
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeModal();
+        closeConfirmModal();
+        elements.customAlert.classList.add('hidden');
+    }
+});
+
+function openEditModal(film) {
+    currentEditId = film.id;
+    elements.modalTitle.textContent = 'Edit Koleksi';
+    elements.submitBtnText.textContent = 'Simpan';
+    elements.editId.value = film.id;
+    elements.titleInput.value = film.title;
+    elements.typeInput.value = film.type;
+    elements.episodesInput.value = film.episodes || '';
+    elements.statusInput.value = film.status;
+    elements.dateInput.value = film.date ? new Date(film.date).toISOString().split('T')[0] : '';
+    elements.notesInput.value = film.notes || '';
+    elements.modal.classList.remove('hidden');
+    lucide.createIcons();
+}
+
+
+function openDeleteModal(id) { currentEditId = id; elements.confirmModal.classList.remove('hidden'); }
+function closeConfirmModal() { elements.confirmModal.classList.add('hidden'); }
+
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    hideToastInstantly();
+    const data = {
+        title: elements.titleInput.value.trim(),
+        type: elements.typeInput.value.trim(),
+        episodes: elements.episodesInput.value ? parseInt(elements.episodesInput.value) : null,
+        status: elements.statusInput.value.trim(),
+        date: elements.dateInput.value || null,
+        notes: elements.notesInput.value.trim()
+    };
+    closeModal();
+    if (currentEditId) {
+        data.id = currentEditId;
+        data.rowIndex = filmData.find(f => f.id === currentEditId)?.rowIndex;
+        await saveData(data, 'edit');
+    } else {
+        await saveData(data, 'add');
+    }
+}
+
+async function confirmDelete() {
+    if (currentEditId) {
+        hideToastInstantly();
+        closeConfirmModal();
+        await deleteData(currentEditId);
+    }
+}
+
+function handleSearch() { applyFilters(elements.searchInput.value.toLowerCase()); }
+function handleFilter() { applyFilters(elements.searchInput.value.toLowerCase()); }
 
 function handleSort(column) {
     if (sortColumn === column) sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
@@ -719,3 +916,70 @@ function escapeHtml(text) {
     const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
     return String(text).replace(/[&<>"']/g, m => map[m]);
 }
+
+// ===================================
+// Draggable FAB Logic
+// ===================================
+const fab = document.getElementById('addBtn');
+let isDragging = false;
+let startY;
+let initialTop;
+let dragThreshold = 5; // Toleransi gerakan dalam pixel
+let wasDragged = false;
+
+function onStart(e) {
+    isDragging = true;
+    wasDragged = false; // Reset status setiap kali ditekan
+
+    const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+    startY = clientY;
+
+    const rect = fab.getBoundingClientRect();
+    initialTop = rect.top;
+
+    fab.style.transition = 'none';
+}
+
+function onMove(e) {
+    if (!isDragging) return;
+
+    const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+    const deltaY = clientY - startY;
+
+    // Jika gerakan melebihi threshold, tandai sebagai "sedang menggeser"
+    if (Math.abs(deltaY) > dragThreshold) {
+        wasDragged = true;
+
+        let newTop = initialTop + deltaY;
+        const padding = 20;
+        const maxTop = window.innerHeight - fab.offsetHeight - padding;
+
+        if (newTop < padding) newTop = padding;
+        if (newTop > maxTop) newTop = maxTop;
+
+        fab.style.top = `${newTop}px`;
+        fab.style.bottom = 'auto';
+    }
+}
+
+function onEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
+
+    fab.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+    // Kuncinya ada di sini:
+    // Jika wasDragged true, kita pasang penghalang klik sementara.
+    if (wasDragged) {
+        const preventClick = (event) => {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+        };
+        // Gunakan {capture: true} dan hilangkan setelah 50ms
+        fab.addEventListener('click', preventClick, { capture: true, once: true });
+        setTimeout(() => {
+            fab.removeEventListener('click', preventClick, { capture: true });
+        }, 50);
+    }
+}
+
