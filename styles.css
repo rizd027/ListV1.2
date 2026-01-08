@@ -113,7 +113,6 @@ body {
     justify-content: center;
     gap: 0.75rem;
     margin-bottom: 0.5rem;
-
     /* Efek Text Shimmer (Gradasi Berjalan) */
     background: linear-gradient(90deg,
             var(--text-main) 0%,
@@ -1339,3 +1338,4 @@ body {
         margin-bottom: 1rem;
     }
 }
+
