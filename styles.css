@@ -213,7 +213,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding-top: 6px;
-    padding-bottom: 18px;
+    padding-bottom: 14px;
     padding-left: 24px !important;
     padding-right: 24px !important;
     margin-bottom: 2rem;
@@ -256,8 +256,13 @@ body {
 
 .subtitle {
     color: var(--text-dim);
-    font-size: 0.95rem;
-    margin-top: 2px !important;
+    font-size: 12px;
+    margin-top: none;
+}
+
+.displayUser {
+    color: #10b981;
+    font-weight: 700;
 }
 
 .header-actions {
@@ -390,46 +395,149 @@ body {
     transform: translateY(-1px);
 }
 
-.logoutBtn {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--glass-border);
-    color: var(--text-dim);
-    font-size: 0.85rem;
-    cursor: pointer;
+/* Container Utama */
+.user-menu-container {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    font-weight: 500;
-    transition: all 0.3s var(--ease);
-    backdrop-filter: blur(8px);
 }
 
-.logoutBtn:hover {
-    background: rgba(239, 68, 68, 0.08);
-    border-color: rgba(239, 68, 68, 0.3);
-    color: var(--danger);
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.15);
+/* Tombol Menu (Pill Style) */
+.user-menu-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0 12px 0 5px;
+    /* Padding rapi: kiri sempit karena ada icon bulat */
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    height: 40px;
+    min-width: 0;
 }
 
+.user-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--p-400);
+}
 
-.logoutBtn i {
+/* Lingkaran Ikon User */
+.user-icon-wrapper {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, var(--p-500), var(--a-500));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.user-icon-wrapper i {
     width: 16px !important;
     height: 16px !important;
-    transition: transform 0.3s var(--ease);
+    stroke-width: 2.5;
 }
 
-.logoutBtn:hover i {
-    transform: translateX(-3px);
+/* Chevron */
+.chevron-icon {
+    width: 14px !important;
+    height: 14px !important;
+    color: rgba(255, 255, 255, 0.5);
+    transition: transform 0.3s ease;
 }
 
-#displayUser {
-    color: var(--text-main);
+/* Efek Rotasi saat dropdown muncul */
+/* Karena dropdown sekarang SETELAH tombol, kita gunakan JS class di container */
+.user-menu-container.active .chevron-icon {
+    transform: rotate(180deg);
+}
+
+/* Panel Dropdown */
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 200px;
+    background: #171c29;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    display: none;
+    /* Default sembunyi */
+    z-index: 5000;
+}
+
+.user-dropdown.show {
+    display: block;
+    animation: dropdownPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes dropdownPop {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Label & Teks di dalam */
+.dropdown-info {
+    padding: 8px 12px;
+}
+
+.dropdown-info .label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+}
+
+.dropdown-info .user-name {
+    display: block;
+    font-size: 14px;
     font-weight: 700;
+    color: white;
 }
 
+.dropdown-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 6px 0;
+}
+
+.dropdown-item {
+    width: 100%;
+    padding: 10px 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.logout-item {
+    color: #ff4d4d;
+}
 
 /* ===================================
    Light Stats Cards
