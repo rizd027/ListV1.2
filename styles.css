@@ -1248,6 +1248,11 @@ body {
         display: none;
     }
 
+    .table-container {
+    background: none;
+    border: none;
+}
+
     .data-table,
     .data-table tbody,
     .data-table tr,
