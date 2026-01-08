@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="Kelola koleksi film dan donghua Anda dengan mudah menggunakan Film Table Manager yang terintegrasi dengan Google Sheets">
-    <title>Film & Donghua Table Manager</title>
+    <title>ListV</title>
     <link rel="icon"
         href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%236366f1'/%3E%3Cpath d='M192 144 L384 256 L192 368 Z' fill='white'/%3E%3C/svg%3E"
         type="image/svg+xml">
@@ -152,12 +152,29 @@
                 <i data-lucide="clapperboard" class="title-icon-svg"></i>
                 ListV
             </h1>
-            <p class="subtitle">Kelola koleksi film</p>
+            <p class="subtitle" id="subtitle">Kelola Koleksi Anda</p>
         </div>
         <div class="header-actions">
-            <button class="logoutBtn" id="logoutBtn">
-                <i data-lucide="log-out"></i> Keluar dari <span id="displayUser"></span>
-            </button>
+            <div class="user-menu-container">
+                <button class="user-menu-btn" id="userMenuBtn">
+                    <div class="user-icon-wrapper">
+                        <i data-lucide="user"></i>
+                    </div>
+                    <i data-lucide="chevron-down" class="chevron-icon"></i>
+                </button>
+
+                <div class="user-dropdown" id="userDropdown">
+                    <div class="dropdown-info">
+                        <span class="label">User</span>
+                        <span class="user-name" id="displayUser">Admin</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item logout-item" id="logoutBtn">
+                        <i data-lucide="log-out"></i>
+                        <span>Keluar</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </header>
 
