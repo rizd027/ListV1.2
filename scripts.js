@@ -37,6 +37,8 @@ const elements = {
     logoutBtn: document.getElementById('logoutBtn'),
     displayUser: document.getElementById('displayUser'),
     authFooter: document.querySelector('.auth-footer'),
+    userMenuBtn: document.getElementById('userMenuBtn'),
+    userDropdown: document.getElementById('userDropdown'),
 
     // Custom Alert
     customAlert: document.getElementById('customAlert'),
@@ -206,6 +208,21 @@ function initializeEventListeners() {
             closeFormModal();
         }
     });
+
+    // Di dalam initializeEventListeners()
+    if (elements.userMenuBtn) {
+        elements.userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            elements.userDropdown.classList.toggle('show');
+        });
+    }
+
+    // Menutup menu jika klik di mana saja di luar menu
+    document.addEventListener('click', (e) => {
+        if (elements.userDropdown && !elements.userMenuBtn.contains(e.target)) {
+            elements.userDropdown.classList.remove('show');
+        }
+    });
 }
 
 // ===================================
@@ -292,7 +309,7 @@ function startSlideshow() {
             slides[currentSlide].classList.remove('active');
             currentSlide = (currentSlide + 1) % slides.length;
             slides[currentSlide].classList.add('active');
-        }, 5000);
+        }, 2000);
     });
 }
 
