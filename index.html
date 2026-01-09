@@ -70,25 +70,26 @@
                 </div>
 
                 <div class="login-form">
-                    <div class="form-group">
-                        <label class="form-label">Username</label>
-                        <div class="input-wrapper">
-                            <i data-lucide="user" class="input-icon"></i>
-                            <input type="text" id="usernameInput" class="form-input" placeholder="Masukkan username">
+                    <div class="auth-input-group">
+                        <label class="auth-input-label">Username</label>
+                        <div class="auth-input-wrapper">
+                            <i data-lucide="user" class="auth-input-icon"></i>
+                            <input type="text" id="usernameInput" class="auth-input-field"
+                                placeholder="Masukkan username">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Password</label>
-                        <div class="input-wrapper">
-                            <i data-lucide="lock" class="input-icon"></i>
-                            <input type="password" id="passwordInput" class="form-input"
+                    <div class="auth-input-group">
+                        <label class="auth-input-label">Password</label>
+                        <div class="auth-input-wrapper">
+                            <i data-lucide="lock" class="auth-input-icon"></i>
+                            <input type="password" id="passwordInput" class="auth-input-field"
                                 placeholder="Masukkan password">
                             <button type="button" id="togglePassword" class="password-toggle">
                                 <i data-lucide="eye"></i>
                             </button>
                         </div>
                     </div>
-                    <button id="loginBtn" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    <button id="loginBtn" class="btn auth-submit-btn">
                         Masuk Sekarang
                     </button>
                 </div>
@@ -195,12 +196,12 @@
                 <div class="stat-icon-wrapper success">
                     <i data-lucide="check-circle-2"></i>
                 </div>
-                <div class="stat-content">
+                <div class="stat-content" id="stat-completed">
                     <p class="stat-label">Selesai</p>
                     <p class="stat-value" id="completedCount">0</p>
                 </div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" id="stat-watching">
                 <div class="stat-icon-wrapper warning">
                     <i data-lucide="play-circle"></i>
                 </div>
@@ -209,7 +210,7 @@
                     <p class="stat-value" id="watchingCount">0</p>
                 </div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" id="stat-planned">
                 <div class="stat-icon-wrapper info">
                     <i data-lucide="calendar-days"></i>
                 </div>
@@ -225,22 +226,26 @@
             <div class="search-container"><input type="text" id="searchInput" class="search-input"
                     placeholder="Cari koleksi..."> </div>
             <div class="filter-container">
-                <input type="text" id="statusFilter" list="statusOptions" class="filter-input" placeholder="Status...">
-                <datalist id="statusOptions">
-                    <option value="Semua Status">
-                    <option value="Selesai">
-                    <option value="Sedang Ditonton">
-                    <option value="Rencana">
-                    <option value="Ditunda">
-                </datalist>
-                <input type="text" id="categoryFilter" list="categoryOptions" class="filter-input"
-                    placeholder="Kategori...">
-                <datalist id="categoryOptions">
-                    <option value="Semua Kategori">
-                    <option value="Film">
-                    <option value="Donghua">
-                    <option value="Series">
-                </datalist>
+                <div class="tipeFilter">
+                    <i data-lucide="filter" class="filter-icon"></i>
+                    <select id="statusFilter" class="filter-input">
+                        <option value="Semua Status">Semua Status</option>
+                        <option value="Selesai">Selesai</option>
+                        <option value="Sedang Ditonton">Sedang Ditonton</option>
+                        <option value="Rencana">Rencana</option>
+                        <option value="Ditunda">Ditunda</option>
+                    </select>
+                </div>
+                <div class="kategoriFilter">
+                    <i data-lucide="tag" class="filter-icon"></i>
+                    <select id="categoryFilter" class="filter-input">
+                        <option value="Semua Kategori">Semua Kategori</option>
+                        <option value="Film">Film</option>
+                        <option value="Donghua">Donghua</option>
+                        <option value="Anime">Anime</option>
+                        <option value="Series">Series</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -273,84 +278,99 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title-wrapper">
-                    <i data-lucide="edit-3" id="modalIcon"></i>
-                    <h2 id="modalTitle">Tambah Koleksi</h2>
+                    <div class="modal-icon-circle">
+                        <i data-lucide="plus-circle" id="modalIcon"></i>
+                    </div>
+                    <div>
+                        <h2 id="modalTitle">Tambah Koleksi</h2>
+                    </div>
                 </div>
-                <button id="closeModal" class="close-btn"></button>
+                <button id="closeModal" class="close-btn">
+                    <i data-lucide="x"></i>
+                </button>
             </div>
+
             <form id="dataForm" class="data-form">
                 <input type="hidden" id="editId">
 
-                <div class="form-group">
-                    <label for="titleInput" class="form-label">Judul *</label>
-                    <div class="input-wrapper">
-                        <i data-lucide="type" class="input-icon"></i>
-                        <input type="text" id="titleInput" class="form-input" placeholder="Contoh: Soul Land" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
+                <div class="form-section">
                     <div class="form-group">
-                        <label for="typeInput" class="form-label">Tipe *</label>
+                        <label for="titleInput" class="form-label">Judul Koleksi <span
+                                class="required-mark">*</span></label>
                         <div class="input-wrapper">
-                            <i data-lucide="layers" class="input-icon"></i>
-                            <input type="text" id="typeInput" class="form-input" list="typeOptions"
-                                placeholder="Pilih tipe" required>
-                            <datalist id="typeOptions">
-                                <option value="Film">
-                                <option value="Donghua">
-                                <option value="Anime">
-                                <option value="Series">
-                            </datalist>
+                            <i data-lucide="clapperboard" class="input-icon"></i>
+                            <input type="text" id="titleInput" class="form-input"
+                                placeholder="Masukkan judul film atau series..." required>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="statusInput" class="form-label">Status *</label>
-                        <div class="input-wrapper">
-                            <i data-lucide="activity" class="input-icon"></i>
-                            <input type="text" id="statusInput" class="form-input" list="statusOptions"
-                                placeholder="Pilih status" required>
-                            <datalist id="statusOptions">
-                                <option value="Selesai">
-                                <option value="Sedang Ditonton">
-                                <option value="Rencana">
-                                <option value="Ditunda">
-                                <option value="Drop">
-                            </datalist>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="typeInput" class="form-label">Tipe <span class="required-mark">*</span></label>
+                            <div class="input-wrapper">
+                                <i data-lucide="layers" class="input-icon"></i>
+                                <select id="typeInput" class="form-input" required>
+                                    <option value="" disabled selected>Tipe</option>
+                                    <option value="Film">Film</option>
+                                    <option value="Donghua">Donghua</option>
+                                    <option value="Anime">Anime</option>
+                                    <option value="Series">Series</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="episodesInput" class="form-label">Episode</label>
-                        <div class="input-wrapper">
-                            <i data-lucide="hash" class="input-icon"></i>
-                            <input type="number" id="episodesInput" class="form-input" placeholder="12" min="1">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="dateInput" class="form-label">Tanggal</label>
-                        <div class="input-wrapper">
-                            <i data-lucide="calendar" class="input-icon"></i>
-                            <input type="date" id="dateInput" class="form-input">
+                        <div class="form-group">
+                            <label for="statusInput" class="form-label">Status <span
+                                    class="required-mark">*</span></label>
+                            <div class="input-wrapper">
+                                <i data-lucide="activity" class="input-icon"></i>
+                                <select id="statusInput" class="form-input" required>
+                                    <option value="" disabled selected>Status</option>
+                                    <option value="Selesai">Selesai</option>
+                                    <option value="Sedang Ditonton">Sedang Ditonton</option>
+                                    <option value="Rencana">Rencana</option>
+                                    <option value="Ditunda">Ditunda</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="notesInput" class="form-label">Catatan</label>
-                    <div class="input-wrapper">
-                        <i data-lucide="sticky-note" class="input-icon" style="top: 0.8rem; transform: none;"></i>
-                        <textarea id="notesInput" class="form-input" placeholder="Tambahkan catatan atau review..."
-                            style="min-height: 100px; padding-top: 0.75rem; resize: vertical;"></textarea>
+                <div class="form-section-divider"></div>
+
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="episodesInput" class="form-label">Total Episode</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="hash" class="input-icon"></i>
+                                <input type="number" id="episodesInput" class="form-input" placeholder="Contoh: 12"
+                                    min="1">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dateInput" class="form-label">Tanggal Selesai</label>
+                            <div class="input-wrapper">
+                                <i data-lucide="calendar" class="input-icon"></i>
+                                <input type="date" id="dateInput" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="notes-group">
+                        <label for="notesInput" class="notes-label">Catatan & Review</label>
+                        <div class="notes-wrapper">
+                            <textarea id="notesInput" class="notes-area"
+                                placeholder="Apa pendapatmu tentang koleksi ini?..."></textarea>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" id="cancelBtn" class="btn btn-secondary">Batal</button>
+                    <button type="button" id="cancelBtn" class="btn btn-secondary">
+                        <span>Batal</span>
+                    </button>
                     <button type="submit" class="btn btn-primary">
                         <span id="submitBtnText">Simpan</span>
                     </button>
