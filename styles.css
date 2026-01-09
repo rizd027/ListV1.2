@@ -275,71 +275,86 @@ body {
 /* ===================================
    Floating Action Button (FAB)
    =================================== */
+/* Update pada .fab-btn utama */
 .fab-btn {
-    position: fixed;
     top: 50%;
-    right: 0;
     transform: translateY(-50%);
     z-index: 4000;
     background: linear-gradient(135deg, var(--p-500), var(--p-700));
     color: white;
     border: none;
-    padding: 0.8rem 1rem 0.8rem 1.2rem;
-    border-radius: 30px 0 0 30px;
+    padding: 0 12px;
+    border-radius: 30px;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.6rem;
     cursor: pointer;
-    box-shadow: -5px 5px 20px rgba(0, 0, 0, 0.2);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    overflow: hidden;
-    width: 48px;
-    height: 48px;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+    width: 56px;
+    height: 56px;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
+    outline: none;
+    position: fixed;
+}
+
+/* Efek saat ditekan (Mengecil sedikit) */
+.fab-btn:active {
+    transform: translateY(-50%) scale(0.9);
+}
+
+/* Animasi Denyut (Pulse) */
+.fab-btn:active::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 30px;
+    /* Sama dengan border-radius tombol */
+    animation: pulse-animation 0.4s ease-out;
+}
+
+/* Definisi Gerakan Denyut */
+@keyframes pulse-animation {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
 }
 
 .fab-btn i {
-    min-width: 24px;
-    height: 24px;
+    font-size: 1.5rem;
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .fab-btn span {
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     white-space: nowrap;
     opacity: 0;
     max-width: 0;
     transition: all 0.3s var(--ease);
 }
 
+.fab-btn:hover span {
+    opacity: 1;
+    max-width: 200px;
+}
 
 .fab-btn:active {
-    transform: translateY(-50%) scale(0.95);
+    transform: translateY(-50%) scale(0.9);
 }
 
-/* Hide FAB when login overlay is visible */
 .login-overlay:not(.hidden)~.fab-btn {
     display: none;
-}
-
-/* ===================================
-   Floating Action Button (FAB)
-   =================================== */
-
-#addBtn {
-    position: fixed;
-    right: 0px;
-    bottom: 20px;
-    /* Posisi awal */
-    z-index: 999;
-    cursor: grab;
-    touch-action: none;
-    /* Penting untuk mobile agar tidak scroll saat geser */
-    user-select: none;
-}
-
-#addBtn:active {
-    cursor: grabbing;
 }
 
 /* ===================================
@@ -1428,24 +1443,22 @@ body {
        FAB Mobile: Revert to Standard Floating Button
        =================================== */
     .fab-btn {
-        top: auto;
-        bottom: 1.5rem;
-        right: 1.5rem;
-        border-radius: 50%;
-        width: 56px;
-        height: 56px;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--primary-color);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: fixed !important;
+        border-radius: 50% !important;
+        width: 56px !important;
+        height: 56px !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: linear-gradient(135deg, var(--p-500), var(--a-500)) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        transform: none !important;
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4) !important;
     }
 
-
-
     .fab-btn span {
-        display: none;
+        display: none !important;
     }
 }
 
