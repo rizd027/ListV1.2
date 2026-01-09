@@ -3,7 +3,7 @@
 // ===================================
 const CONFIG = {
     // Google Apps Script Web App URL
-    SHEET_API_URL: 'https://script.google.com/macros/s/AKfycbxEtBXnW4_Jlc4LorGuHg3_FU6a6D6bDpbvNIz_qi4Kb7CmQeSRQgmNzM19Q33x5Q/exec',
+    SHEET_API_URL: 'https://script.google.com/macros/s/AKfycbyH2x7-aey72IBuU9wZDcHvraFtC-jWkPj4BLaBIYOeUqCESGnHEVjwQEyYuG6njp3S/exec',
     // Set to false to use Google Sheets, true to use localStorage for testing
     USE_LOCAL_STORAGE: false
 };
@@ -92,13 +92,6 @@ const elements = {
     completedCount: document.getElementById('completedCount'),
     watchingCount: document.getElementById('watchingCount'),
     plannedCount: document.getElementById('plannedCount'),
-
-    filmModal: document.getElementById('filmModal'),
-    modalTitle: document.getElementById('modalTitle'),
-    filmForm: document.getElementById('filmForm'),
-    submitBtnText: document.getElementById('submitBtnText'),
-    addBtn: document.getElementById('addBtn'), // Tombol FAB
-    cancelBtn: document.getElementById('cancelBtn'), // Tombol Batal
 };
 
 // ===================================
@@ -124,12 +117,17 @@ function initializeEventListeners() {
     elements.tabRegister.addEventListener('click', () => switchAuthMode('register'));
     elements.togglePassword.addEventListener('click', () => togglePasswordVisibility('passwordInput', elements.togglePassword));
 
-    // Pasang Event Listeners
-    // Event listeners for FAB are handled in initFabDrag
+    // FAB and Modal
+    if (elements.addBtn) {
+        elements.addBtn.addEventListener('click', openAddModal);
+    }
+    if (elements.closeModal) {
+        elements.closeModal.addEventListener('click', closeModal);
+    }
+    if (elements.cancelBtn) {
+        elements.cancelBtn.addEventListener('click', closeModal);
+    }
 
-    elements.addBtn.addEventListener('click', toggleAddModal);
-    elements.closeModal.addEventListener('click', closeModal);
-    elements.cancelBtn.addEventListener('click', closeModal);
     elements.closeConfirmModal.addEventListener('click', closeConfirmModal);
     elements.cancelDeleteBtn.addEventListener('click', closeConfirmModal);
     elements.confirmDeleteBtn.addEventListener('click', confirmDelete);
@@ -139,77 +137,33 @@ function initializeEventListeners() {
 
     elements.dataForm.addEventListener('submit', handleFormSubmit);
 
-    // Ganti bagian search dan filter dengan ini:
+    // Search and Filter
     elements.searchInput.addEventListener('input', debounce(() => {
         applyFilters();
     }, 300));
 
-    // Gunakan event 'change' atau 'input' agar saat memilih dari datalist langsung terfilter
     elements.statusFilter.addEventListener('input', applyFilters);
     elements.categoryFilter.addEventListener('input', applyFilters);
-
-    elements.statusFilter.addEventListener('input', debounce(() => {
-        applyFilters();
-    }, 300));
-
-    elements.categoryFilter.addEventListener('input', debounce(() => {
-        applyFilters();
-    }, 300));
 
     document.querySelectorAll('th[data-sort]').forEach(th => {
         th.addEventListener('click', () => handleSort(th.dataset.sort));
     });
 
+    // Close modals on outside click
     [elements.modal, elements.confirmModal, elements.customAlert].forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.classList.add('hidden');
-        });
-    });
-    // Pastikan tombol FAB memanggil fungsi openAddModal
-    if (elements.addBtn) {
-        elements.addBtn.addEventListener('click', openAddModal);
-    }
-
-    // Tombol silang (X) di pojok modal
-    if (elements.closeModal) {
-        elements.closeModal.addEventListener('click', closeModal);
-    }
-
-    // Tombol Batal di dalam form
-    if (elements.cancelBtn) {
-        elements.cancelBtn.addEventListener('click', closeModal);
-    }
-
-    // Menutup modal jika area di luar box modal di-klik (Overlay)
-    elements.modal.addEventListener('click', (e) => {
-        if (e.target === elements.modal) {
-            closeModal();
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.add('hidden');
+            });
         }
     });
 
     // Initialize FAB Dragging
-    if (elements.addBtn) {
+    if (elements.addBtn && typeof initFabDrag === 'function') {
         initFabDrag(elements.addBtn);
     }
 
-    // Tombol Tambah (FAB)
-    if (elements.addBtn) {
-        elements.addBtn.addEventListener('click', openAddModal);
-    }
-
-    // Tombol Batal di dalam modal
-    if (elements.cancelBtn) {
-        elements.cancelBtn.addEventListener('click', closeFormModal);
-    }
-
-    // Menutup modal jika klik di luar area modal
-    window.addEventListener('click', (e) => {
-        if (e.target === elements.filmModal) {
-            closeFormModal();
-        }
-    });
-
-    // Di dalam initializeEventListeners()
+    // User Menu
     if (elements.userMenuBtn) {
         elements.userMenuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -217,10 +171,19 @@ function initializeEventListeners() {
         });
     }
 
-    // Menutup menu jika klik di mana saja di luar menu
+    // Close menu when clicking outside
     document.addEventListener('click', (e) => {
-        if (elements.userDropdown && !elements.userMenuBtn.contains(e.target)) {
+        if (elements.userDropdown && elements.userMenuBtn && !elements.userMenuBtn.contains(e.target)) {
             elements.userDropdown.classList.remove('show');
+        }
+    });
+
+    // ESC Key to close modals
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeModal();
+            closeConfirmModal();
+            elements.customAlert.classList.add('hidden');
         }
     });
 }
@@ -230,9 +193,7 @@ function initializeEventListeners() {
 // ===================================
 function updateAuthUI(mode) {
     const isLogin = mode === 'login';
-
-    // Update teks secara instan tanpa animasi
-    elements.loginBtn.textContent = isLogin ? 'Masuk' : 'Daftar';
+    elements.loginBtn.textContent = isLogin ? 'Masuk Sekarang' : 'Daftar Sekarang';
     elements.authSubtitle.textContent = isLogin ? 'Silakan masuk ke akun Anda' : 'Daftar untuk mulai mengelola';
     lucide.createIcons();
 }
@@ -240,7 +201,6 @@ function updateAuthUI(mode) {
 function showAlert(title, message, type = 'info') {
     elements.alertTitle.textContent = title;
     elements.alertMessage.textContent = message;
-
     const iconName = type === 'success' ? 'check-circle' : (type === 'error' ? 'alert-circle' : 'info');
     elements.alertIcon.setAttribute('data-lucide', iconName);
     elements.customAlert.classList.remove('hidden');
@@ -249,23 +209,14 @@ function showAlert(title, message, type = 'info') {
 
 function showToast(message, type = 'success') {
     if (toastTimeout) clearTimeout(toastTimeout);
-
     const toast = elements.toast;
-
-    // Reset status toast agar bisa langsung muncul kembali jika dipicu berulang kali
     toast.classList.remove('active');
-
-    // Force reflow agar animasi restart (opsional)
     void toast.offsetWidth;
-
     elements.toastMessage.textContent = message;
     toast.className = `toast active ${type}`;
-
     const iconName = type === 'success' ? 'check-circle' : (type === 'info' ? 'info' : 'alert-circle');
     elements.toastIcon.setAttribute('data-lucide', iconName);
     lucide.createIcons();
-
-    // Sembunyikan setelah 3 detik
     toastTimeout = setTimeout(() => {
         toast.classList.remove('active');
     }, 3000);
@@ -292,19 +243,14 @@ function hideLoading() {
 // ===================================
 function startSlideshow() {
     const containers = document.querySelectorAll('.slideshow-container');
-
     containers.forEach(container => {
         const slides = container.querySelectorAll('.slide');
         if (slides.length === 0) return;
-
         let currentSlide = 0;
-
-        // Inisialisasi
         slides.forEach((s, i) => {
             s.classList.remove('active');
             if (i === 0) s.classList.add('active');
         });
-
         setInterval(() => {
             slides[currentSlide].classList.remove('active');
             currentSlide = (currentSlide + 1) % slides.length;
@@ -317,20 +263,51 @@ function startSlideshow() {
 // Modal Functions
 // ===================================
 function openAddModal() {
-    currentEditId = null; // Pastikan ID null karena ini data baru
-    elements.modalTitle.textContent = 'Tambah Data Baru';
+    currentEditId = null;
+    elements.dataForm.reset();
+    elements.editId.value = '';
+    elements.modalTitle.textContent = 'Tambah Koleksi';
     elements.submitBtnText.textContent = 'Simpan';
-    elements.filmForm.reset();
 
-    // Tampilkan modal
-    elements.filmModal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Kunci scroll layar belakang
+    const today = new Date().toISOString().split('T')[0];
+    elements.dateInput.value = today;
+
+    elements.modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    lucide.createIcons();
+    setTimeout(() => elements.titleInput.focus(), 100);
 }
 
-// Tambahkan juga fungsi penutup modal agar tidak error nanti
-function closeFormModal() {
-    elements.filmModal.classList.add('hidden');
-    document.body.style.overflow = 'auto'; // Aktifkan scroll kembali
+function openEditModal(film) {
+    currentEditId = film.id;
+    elements.modalTitle.textContent = 'Edit Koleksi';
+    elements.submitBtnText.textContent = 'Simpan';
+    elements.editId.value = film.id;
+    elements.titleInput.value = film.title;
+    elements.typeInput.value = film.type;
+    elements.episodesInput.value = film.episodes || '';
+    elements.statusInput.value = film.status;
+    elements.dateInput.value = film.date ? new Date(film.date).toISOString().split('T')[0] : '';
+    elements.notesInput.value = film.notes || '';
+    elements.modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    lucide.createIcons();
+}
+
+function closeModal() {
+    elements.modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    elements.dataForm.reset();
+    currentEditId = null;
+}
+
+function openDeleteModal(id) {
+    currentEditId = id;
+    elements.confirmModal.classList.remove('hidden');
+}
+
+function closeConfirmModal() {
+    elements.confirmModal.classList.add('hidden');
 }
 
 // ===================================
@@ -339,35 +316,27 @@ function closeFormModal() {
 async function handleLogin() {
     const user = elements.usernameInput.value.trim().toLowerCase();
     const pass = elements.passwordInput.value.trim();
-
     if (!user || !pass) {
         showToast('Username dan Password wajib diisi!', 'error');
         return;
     }
-
     const cleanUser = user.replace(/[^a-z0-9]/g, '_');
     showLoading(authMode === 'login' ? 'Logging In...' : 'Registering...');
-
     try {
         const url = `${CONFIG.SHEET_API_URL}?action=${authMode}&user=${encodeURIComponent(cleanUser)}&pass=${encodeURIComponent(pass)}`;
         const response = await fetch(url, { method: 'POST' });
         const result = await response.json();
-
         if (result.status === 'success') {
             if (authMode === 'register') {
-                // PERBAIKAN: Jika daftar berhasil, arahkan ke login
                 showToast('Pendaftaran berhasil! Silakan login.', 'success');
                 switchAuthMode('login');
-                // Kosongkan input password untuk keamanan
                 elements.passwordInput.value = '';
             } else {
-                // Jika login berhasil
                 showToast('Berhasil Masuk!', 'success');
                 localStorage.setItem('film_username', cleanUser);
                 localStorage.setItem('film_password', pass);
                 currentUser = cleanUser;
                 currentPass = pass;
-
                 setTimeout(() => {
                     elements.loginOverlay.classList.add('hidden');
                     elements.displayUser.textContent = currentUser;
@@ -392,8 +361,6 @@ function handleLogout() {
 
 function switchAuthMode(mode) {
     authMode = mode;
-
-    // Update Tab Active State
     if (mode === 'login') {
         elements.tabLogin.classList.add('active');
         elements.tabRegister.classList.remove('active');
@@ -403,7 +370,6 @@ function switchAuthMode(mode) {
         elements.tabRegister.classList.add('active');
         elements.authFooter.classList.add('active');
     }
-    lucide.createIcons();
     updateAuthUI(mode);
 }
 
@@ -422,25 +388,17 @@ function togglePasswordVisibility(inputId, button) {
     }
 }
 
-// Pastikan fungsi applyFilters() mengambil .value dengan benar
 function applyFilters() {
     const searchTerm = elements.searchInput.value.toLowerCase();
     const statusTerm = elements.statusFilter.value;
     const categoryTerm = elements.categoryFilter.value;
 
     filteredData = filmData.filter(film => {
-        // PERBAIKAN: Gunakan 'type' karena di loadData Anda menggunakan properti 'type'
         const title = film.title ? film.title.toLowerCase() : '';
         const type = film.type ? film.type.toLowerCase() : '';
-
         const matchesSearch = title.includes(searchTerm) || type.includes(searchTerm);
-
-        // Logika filter status
         const matchesStatus = statusTerm === 'Semua Status' || statusTerm === '' || film.status === statusTerm;
-
-        // PERBAIKAN: Filter kategori harus memeriksa properti 'type'
         const matchesCategory = categoryTerm === 'Semua Kategori' || categoryTerm === '' || film.type === categoryTerm;
-
         return matchesSearch && matchesStatus && matchesCategory;
     });
 
@@ -451,35 +409,27 @@ function applyFilters() {
 async function loadData() {
     if (!currentUser || !currentPass) return;
     showLoading('Loading Data...');
-
     try {
-        if (CONFIG.USE_LOCAL_STORAGE) {
-            const stored = localStorage.getItem(`filmData_${currentUser}`);
-            filmData = stored ? JSON.parse(stored) : [];
+        const url = `${CONFIG.SHEET_API_URL}?action=read&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
+        const response = await fetch(url);
+        const result = await response.json();
+        if (result.status === 'success') {
+            filmData = result.data.map(item => ({
+                id: parseInt(item.no),
+                title: item.judul || '',
+                type: item.type || '',
+                episodes: item.episode || null,
+                status: item.status || '',
+                date: item.date || null,
+                notes: item.notes || '',
+                rowIndex: item.rowIndex
+            }));
+            filteredData = [...filmData];
+            renderTable();
+            updateStats();
         } else {
-            const url = `${CONFIG.SHEET_API_URL}?action=read&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
-            const response = await fetch(url);
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                filmData = result.data.map(item => ({
-                    id: item.no,
-                    title: item.judul || '',
-                    type: item.type || '', // Ini digunakan sebagai 'Kategori' di filter
-                    episodes: item.episode || null,
-                    status: item.status || '',
-                    date: item.date || null,
-                    notes: item.notes || '',
-                    rowIndex: item.rowIndex
-                }));
-            } else {
-                throw new Error(result.message || 'Gagal memuat data');
-            }
+            throw new Error(result.message || 'Gagal memuat data');
         }
-
-        filteredData = [...filmData];
-        renderTable();
-        updateStats();
     } catch (error) {
         showToast('Gagal memuat data: ' + error.message, 'error');
     } finally {
@@ -489,67 +439,48 @@ async function loadData() {
 
 async function saveData(data, action = 'add') {
     if (!currentUser || !currentPass) return;
-
-    // --- STRATEGI OPTIMISTIC UI ---
-    // Simpan data lama untuk backup jika gagal
     const oldFilmData = [...filmData];
 
     if (action === 'add') {
-        // Berikan ID sementara agar bisa langsung muncul di tabel
         data.id = filmData.length > 0 ? Math.max(...filmData.map(f => f.id)) + 1 : 1;
-        data.isPending = true; // Tandai bahwa ini sedang diproses
         filmData.push(data);
     } else {
-        const index = filmData.findIndex(f => f.id === data.id);
+        const index = filmData.findIndex(f => f.id == data.id);
         if (index !== -1) {
-            data.rowIndex = filmData[index].rowIndex; // Pertahankan rowIndex
+            data.rowIndex = filmData[index].rowIndex;
             filmData[index] = data;
         }
     }
 
-    // Update UI seketika
-    applyFilters(elements.searchInput.value.toLowerCase());
+    applyFilters();
     updateStats();
     showToast(action === 'add' ? 'Menambah data...' : 'Memperbarui data...', 'info');
 
-    // --- PROSES LATAR BELAKANG ---
     try {
-        if (CONFIG.USE_LOCAL_STORAGE) {
-            localStorage.setItem(`filmData_${currentUser}`, JSON.stringify(filmData));
-            showToast('Tersimpan secara lokal', 'success');
+        const sheetData = {
+            no: data.id,
+            judul: data.title,
+            type: data.type,
+            episode: data.episodes,
+            status: data.status,
+            date: data.date,
+            notes: data.notes,
+            rowIndex: data.rowIndex
+        };
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(sheetData));
+        const url = `${CONFIG.SHEET_API_URL}?action=${action}&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
+        const response = await fetch(url, { method: 'POST', body: formData });
+        const result = await response.json();
+        if (result.status === 'success') {
+            showToast('Sinkronisasi Berhasil!', 'success');
+            silentLoadData();
         } else {
-            const sheetData = {
-                no: data.id,
-                judul: data.title,
-                type: data.type,
-                episode: data.episodes,
-                status: data.status,
-                date: data.date,
-                notes: data.notes,
-                rowIndex: data.rowIndex
-            };
-
-            const formData = new FormData();
-            formData.append('data', JSON.stringify(sheetData));
-
-            const url = `${CONFIG.SHEET_API_URL}?action=${action}&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
-
-            // fetch berjalan di latar belakang (tanpa await showLoading)
-            const response = await fetch(url, { method: 'POST', body: formData });
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                showToast('Sinkronisasi Berhasil!', 'success');
-                // Ambil ulang data hanya untuk memastikan rowIndex terbaru tersinkron
-                silentLoadData();
-            } else {
-                throw new Error(result.message);
-            }
+            throw new Error(result.message);
         }
     } catch (error) {
-        // Jika gagal, kembalikan ke data lama (Rollback)
         filmData = oldFilmData;
-        applyFilters(elements.searchInput.value.toLowerCase());
+        applyFilters();
         updateStats();
         showAlert('Gagal Sinkron', 'Data gagal dikirim ke server: ' + error.message, 'error');
     }
@@ -557,35 +488,26 @@ async function saveData(data, action = 'add') {
 
 async function deleteData(id) {
     if (!currentUser || !currentPass) return;
-
     const oldData = [...filmData];
-    const targetFilm = filmData.find(f => f.id === id);
+    const targetFilm = filmData.find(f => f.id == id);
     if (!targetFilm) return;
 
-    // Update UI Seketika (Hapus dari memori)
-    filmData = filmData.filter(f => f.id !== id);
-    applyFilters(elements.searchInput.value.toLowerCase());
+    filmData = filmData.filter(f => f.id != id);
+    applyFilters();
     updateStats();
     showToast('Menghapus data...', 'info');
 
     try {
-        if (CONFIG.USE_LOCAL_STORAGE) {
-            localStorage.setItem(`filmData_${currentUser}`, JSON.stringify(filmData));
-        } else {
-            const formData = new FormData();
-            formData.append('data', JSON.stringify({ rowIndex: targetFilm.rowIndex }));
-            const url = `${CONFIG.SHEET_API_URL}?action=delete&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
-
-            const response = await fetch(url, { method: 'POST', body: formData });
-            const result = await response.json();
-
-            if (result.status !== 'success') throw new Error(result.message);
-            showToast('Terhapus dari database', 'success');
-        }
+        const formData = new FormData();
+        formData.append('data', JSON.stringify({ rowIndex: targetFilm.rowIndex }));
+        const url = `${CONFIG.SHEET_API_URL}?action=delete&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
+        const response = await fetch(url, { method: 'POST', body: formData });
+        const result = await response.json();
+        if (result.status !== 'success') throw new Error(result.message);
+        showToast('Terhapus dari database', 'success');
     } catch (error) {
-        // Rollback jika gagal
         filmData = oldData;
-        applyFilters(elements.searchInput.value.toLowerCase());
+        applyFilters();
         updateStats();
         showToast('Gagal menghapus di server', 'error');
     }
@@ -596,10 +518,9 @@ async function silentLoadData() {
         const url = `${CONFIG.SHEET_API_URL}?action=read&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
         const response = await fetch(url);
         const result = await response.json();
-
         if (result.status === 'success') {
             filmData = result.data.map(item => ({
-                id: item.no,
+                id: parseInt(item.no),
                 title: item.judul || '',
                 type: item.type || '',
                 episodes: item.episode || null,
@@ -608,7 +529,7 @@ async function silentLoadData() {
                 notes: item.notes || '',
                 rowIndex: item.rowIndex
             }));
-            applyFilters(elements.searchInput.value.toLowerCase());
+            applyFilters();
             updateStats();
         }
     } catch (e) {
@@ -626,7 +547,6 @@ function renderTable() {
         return;
     }
     elements.emptyState.classList.add('hidden');
-
     filteredData.forEach(film => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -658,74 +578,13 @@ function updateStats() {
 // ===================================
 // Handlers
 // ===================================
-// ===================================
-// Handlers (REVISI)
-// ===================================
-
-// Ganti nama fungsi agar lebih sesuai dengan fungsinya saat ini
-function toggleAddModal() {
-    // Cek apakah modal sedang tersembunyi
-    const isHidden = elements.modal.classList.contains('hidden');
-
-    if (isHidden) {
-        // LOGIKA MEMBUKA MODAL
-        currentEditId = null;
-        elements.dataForm.reset();
-        elements.editId.value = '';
-        elements.modalTitle.textContent = 'Tambah Koleksi';
-        elements.submitBtnText.textContent = 'Simpan';
-
-        const today = new Date().toISOString().split('T')[0];
-        elements.dateInput.value = today;
-
-        elements.modal.classList.remove('hidden');
-        lucide.createIcons();
-
-        setTimeout(() => elements.titleInput.focus(), 100);
-    } else {
-        // LOGIKA MENUTUP MODAL (Jika diklik saat modal sudah terbuka)
-        closeModal();
-    }
-}
-
-function closeModal() {
-    elements.modal.classList.add('hidden');
-    // Bersihkan form saat ditutup agar tidak ada sisa data saat dibuka lagi
-    elements.dataForm.reset();
-    currentEditId = null;
-}
-
-// Tambahkan logika penutup modal saat menekan tombol ESC di keyboard
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeModal();
-        closeConfirmModal();
-        elements.customAlert.classList.add('hidden');
-    }
-});
-
-function openEditModal(film) {
-    currentEditId = film.id;
-    elements.modalTitle.textContent = 'Edit Koleksi';
-    elements.submitBtnText.textContent = 'Simpan';
-    elements.editId.value = film.id;
-    elements.titleInput.value = film.title;
-    elements.typeInput.value = film.type;
-    elements.episodesInput.value = film.episodes || '';
-    elements.statusInput.value = film.status;
-    elements.dateInput.value = film.date ? new Date(film.date).toISOString().split('T')[0] : '';
-    elements.notesInput.value = film.notes || '';
-    elements.modal.classList.remove('hidden');
-    lucide.createIcons();
-}
-
-
-function openDeleteModal(id) { currentEditId = id; elements.confirmModal.classList.remove('hidden'); }
-function closeConfirmModal() { elements.confirmModal.classList.add('hidden'); }
-
 async function handleFormSubmit(e) {
     e.preventDefault();
     hideToastInstantly();
+
+    const hiddenIdVal = elements.editId.value;
+    const editId = currentEditId || (hiddenIdVal ? parseInt(hiddenIdVal) : null);
+
     const data = {
         title: elements.titleInput.value.trim(),
         type: elements.typeInput.value.trim(),
@@ -734,10 +593,13 @@ async function handleFormSubmit(e) {
         date: elements.dateInput.value || null,
         notes: elements.notesInput.value.trim()
     };
+
     closeModal();
-    if (currentEditId) {
-        data.id = currentEditId;
-        data.rowIndex = filmData.find(f => f.id === currentEditId)?.rowIndex;
+
+    if (editId) {
+        data.id = editId;
+        const existing = filmData.find(f => f.id == editId);
+        data.rowIndex = existing ? existing.rowIndex : null;
         await saveData(data, 'edit');
     } else {
         await saveData(data, 'add');
@@ -751,9 +613,6 @@ async function confirmDelete() {
         await deleteData(currentEditId);
     }
 }
-
-function handleSearch() { applyFilters(elements.searchInput.value.toLowerCase()); }
-function handleFilter() { applyFilters(elements.searchInput.value.toLowerCase()); }
 
 function handleSort(column) {
     if (sortColumn === column) sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
@@ -773,296 +632,208 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(() => func(...args), wait);
     };
-}
-
-window.editFilm = id => { const film = filmData.find(f => f.id === id); if (film) openEditModal(film); };
-window.openDeleteModal = openDeleteModal;
-
-function getStatusClass(status) {
-    const map = { 'Selesai': 'status-selesai', 'Sedang Ditonton': 'status-sedang-ditonton', 'Rencana': 'status-rencana', 'Ditunda': 'status-ditunda', 'Drop': 'status-drop' };
-    return map[status] || '';
-}
-
-function formatDate(date) {
-}
-
-async function silentLoadData() {
-    try {
-        const url = `${CONFIG.SHEET_API_URL}?action=read&user=${encodeURIComponent(currentUser)}&pass=${encodeURIComponent(currentPass)}`;
-        const response = await fetch(url);
-        const result = await response.json();
-
-        if (result.status === 'success') {
-            filmData = result.data.map(item => ({
-                id: item.no,
-                title: item.judul || '',
-                type: item.type || '',
-                episodes: item.episode || null,
-                status: item.status || '',
-                date: item.date || null,
-                notes: item.notes || '',
-                rowIndex: item.rowIndex
-            }));
-            applyFilters(elements.searchInput.value.toLowerCase());
-            updateStats();
-        }
-    } catch (e) {
-        console.log("Silent update failed");
-    }
-}
-
-// ===================================
-// UI Rendering
-// ===================================
-function renderTable() {
-    elements.tableBody.innerHTML = '';
-    if (filteredData.length === 0) {
-        elements.emptyState.classList.remove('hidden');
-        return;
-    }
-    elements.emptyState.classList.add('hidden');
-
-    filteredData.forEach(film => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td data-label="ID">#${film.id}</td>
-            <td data-label="Judul"><strong>${escapeHtml(film.title)}</strong></td>
-            <td data-label="Tipe"><span class="type-tag">${escapeHtml(film.type)}</span></td>
-            <td data-label="Episode">${film.episodes || '-'}</td>
-            <td data-label="Status"><span class="status-badge ${getStatusClass(film.status)}">${escapeHtml(film.status)}</span></td>
-            <td data-label="Tanggal">${film.date ? formatDate(film.date) : '-'}</td>
-            <td data-label="Aksi">
-                <div class="action-buttons">
-                    <button class="btn-icon" onclick="editFilm(${film.id})"><i data-lucide="edit-2"></i></button>
-                    <button class="btn-icon delete" onclick="openDeleteModal(${film.id})"><i data-lucide="trash-2"></i></button>
-                </div>
-            </td>
-        `;
-        elements.tableBody.appendChild(row);
-    });
-    lucide.createIcons();
-}
-
-function updateStats() {
-    elements.totalCount.textContent = filmData.length;
-    elements.completedCount.textContent = filmData.filter(f => f.status === 'Selesai').length;
-    elements.watchingCount.textContent = filmData.filter(f => f.status === 'Sedang Ditonton').length;
-    elements.plannedCount.textContent = filmData.filter(f => f.status === 'Rencana').length;
-}
-
-// ===================================
-// Handlers
-// ===================================
-// ===================================
-// Handlers (REVISI)
-// ===================================
-
-// Ganti nama fungsi agar lebih sesuai dengan fungsinya saat ini
-function toggleAddModal() {
-    // Cek apakah modal sedang tersembunyi
-    const isHidden = elements.modal.classList.contains('hidden');
-
-    if (isHidden) {
-        // LOGIKA MEMBUKA MODAL
-        currentEditId = null;
-        elements.dataForm.reset();
-        elements.editId.value = '';
-        elements.modalTitle.textContent = 'Tambah Koleksi';
-        elements.submitBtnText.textContent = 'Simpan';
-
-        const today = new Date().toISOString().split('T')[0];
-        elements.dateInput.value = today;
-
-        elements.modal.classList.remove('hidden');
-        lucide.createIcons();
-
-        setTimeout(() => elements.titleInput.focus(), 100);
-    } else {
-        // LOGIKA MENUTUP MODAL (Jika diklik saat modal sudah terbuka)
-        closeModal();
-    }
-}
-
-function closeModal() {
-    elements.modal.classList.add('hidden');
-    // Bersihkan form saat ditutup agar tidak ada sisa data saat dibuka lagi
-    elements.dataForm.reset();
-    currentEditId = null;
-}
-
-// Tambahkan logika penutup modal saat menekan tombol ESC di keyboard
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        closeModal();
-        closeConfirmModal();
-        elements.customAlert.classList.add('hidden');
-    }
-});
-
-function openEditModal(film) {
-    currentEditId = film.id;
-    elements.modalTitle.textContent = 'Edit Koleksi';
-    elements.submitBtnText.textContent = 'Simpan';
-    elements.editId.value = film.id;
-    elements.titleInput.value = film.title;
-    elements.typeInput.value = film.type;
-    elements.episodesInput.value = film.episodes || '';
-    elements.statusInput.value = film.status;
-    elements.dateInput.value = film.date ? new Date(film.date).toISOString().split('T')[0] : '';
-    elements.notesInput.value = film.notes || '';
-    elements.modal.classList.remove('hidden');
-    lucide.createIcons();
-}
-
-
-function openDeleteModal(id) { currentEditId = id; elements.confirmModal.classList.remove('hidden'); }
-function closeConfirmModal() { elements.confirmModal.classList.add('hidden'); }
-
-async function handleFormSubmit(e) {
-    e.preventDefault();
-    hideToastInstantly();
-    const data = {
-        title: elements.titleInput.value.trim(),
-        type: elements.typeInput.value.trim(),
-        episodes: elements.episodesInput.value ? parseInt(elements.episodesInput.value) : null,
-        status: elements.statusInput.value.trim(),
-        date: elements.dateInput.value || null,
-        notes: elements.notesInput.value.trim()
-    };
-    closeModal();
-    if (currentEditId) {
-        data.id = currentEditId;
-        data.rowIndex = filmData.find(f => f.id === currentEditId)?.rowIndex;
-        await saveData(data, 'edit');
-    } else {
-        await saveData(data, 'add');
-    }
-}
-
-async function confirmDelete() {
-    if (currentEditId) {
-        hideToastInstantly();
-        closeConfirmModal();
-        await deleteData(currentEditId);
-    }
-}
-
-function handleSearch() { applyFilters(elements.searchInput.value.toLowerCase()); }
-function handleFilter() { applyFilters(elements.searchInput.value.toLowerCase()); }
-
-function handleSort(column) {
-    if (sortColumn === column) sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-    else { sortColumn = column; sortDirection = 'asc'; }
-    filteredData.sort((a, b) => {
-        let aVal = a[column], bVal = b[column];
-        if (aVal == null) return 1; if (bVal == null) return -1;
-        if (typeof aVal === 'string') { aVal = aVal.toLowerCase(); bVal = bVal.toLowerCase(); }
-        return aVal < bVal ? (sortDirection === 'asc' ? -1 : 1) : (sortDirection === 'asc' ? 1 : -1);
-    });
-    renderTable();
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func(...args), wait);
-    };
-}
-
-window.editFilm = id => { const film = filmData.find(f => f.id === id); if (film) openEditModal(film); };
-window.openDeleteModal = openDeleteModal;
-
-function getStatusClass(status) {
-    const map = { 'Selesai': 'status-selesai', 'Sedang Ditonton': 'status-sedang-ditonton', 'Rencana': 'status-rencana', 'Ditunda': 'status-ditunda', 'Drop': 'status-drop' };
-    return map[status] || '';
-}
-
-function formatDate(date) {
-    return new Date(date).toLocaleDateString('id-ID', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function escapeHtml(text) {
-    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-    return String(text).replace(/[&<>"']/g, m => map[m]);
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
-// ===================================
-// Draggable FAB Logic
-// ===================================
-function initFabDrag(fabElement) {
-    if (!fabElement) return;
+function getStatusClass(status) {
+    const map = { 'Selesai': 'status-selesai', 'Sedang Ditonton': 'status-sedang-ditonton', 'Rencana': 'status-rencana', 'Ditunda': 'status-ditunda', 'Drop': 'status-drop' };
+    return map[status] || '';
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch (e) {
+        return dateStr;
+    }
+}
+
+window.editFilm = id => {
+    const film = filmData.find(f => f.id == id);
+    if (film) openEditModal(film);
+};
+
+window.openDeleteModal = openDeleteModal;
+
+// FAB Dragging logic
+function initFabDrag(el) {
+    if (!el) return;
 
     let isDragging = false;
-    let startY;
-    let initialTop;
-    let dragThreshold = 5; // Toleransi gerakan dalam pixel
-    let wasDragged = false;
+    let startX, startY;
+    let initialX, initialY;
+    let hasMoved = false;
 
-    function onStart(e) {
+    // Load saved position
+    const savedPos = JSON.parse(localStorage.getItem('fab_position'));
+    if (savedPos) {
+        // Parse values and ensure they are within current viewport
+        let left = parseInt(savedPos.left);
+        let top = parseInt(savedPos.top);
+
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+        const rect = el.getBoundingClientRect();
+
+        left = Math.max(10, Math.min(left, winW - rect.width - 10));
+        top = Math.max(10, Math.min(top, winH - rect.height - 10));
+
+        el.style.left = left + 'px';
+        el.style.top = top + 'px';
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        el.style.transform = 'none';
+    }
+
+    const onStart = (e) => {
+        // Only left click for mouse
+        if (e.type === 'mousedown' && e.button !== 0) return;
+
         isDragging = true;
-        wasDragged = false; // Reset status setiap kali ditekan
+        hasMoved = false;
 
+        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
         const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+        startX = clientX;
         startY = clientY;
 
-        const rect = fabElement.getBoundingClientRect();
-        initialTop = rect.top;
+        const rect = el.getBoundingClientRect();
+        initialX = rect.left;
+        initialY = rect.top;
 
-        fabElement.style.transition = 'none';
-    }
+        el.style.cursor = 'grabbing';
+        el.style.transition = 'none';
+    };
 
-    function onMove(e) {
+    const onMove = (e) => {
         if (!isDragging) return;
 
+        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
         const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
-        const deltaY = clientY - startY;
 
-        // Jika gerakan melebihi threshold, tandai sebagai "sedang menggeser"
-        if (Math.abs(deltaY) > dragThreshold) {
-            wasDragged = true;
+        const dx = clientX - startX;
+        const dy = clientY - startY;
 
-            let newTop = initialTop + deltaY;
-            const padding = 20;
-            const maxTop = window.innerHeight - fabElement.offsetHeight - padding;
-
-            if (newTop < padding) newTop = padding;
-            if (newTop > maxTop) newTop = maxTop;
-
-            fabElement.style.top = `${newTop}px`;
-            fabElement.style.bottom = 'auto';
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+            hasMoved = true;
         }
-    }
 
-    function onEnd(e) {
+        let newX = initialX + dx;
+        let newY = initialY + dy;
+
+        // Boundary checks
+        const rect = el.getBoundingClientRect();
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+
+        newX = Math.max(0, Math.min(newX, winW - rect.width));
+        newY = Math.max(0, Math.min(newY, winH - rect.height));
+
+        el.style.left = newX + 'px';
+        el.style.top = newY + 'px';
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        el.style.transform = 'none';
+
+        // Prevent scrolling on touch
+        if (e.type === 'touchmove') e.preventDefault();
+    };
+
+    const onEnd = () => {
         if (!isDragging) return;
         isDragging = false;
+        el.style.cursor = 'grab';
+        el.style.transition = '';
 
-        fabElement.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-
-        // Kuncinya ada di sini:
-        // Jika wasDragged true, kita pasang penghalang klik sementara.
-        if (wasDragged) {
-            const preventClick = (event) => {
-                event.stopImmediatePropagation();
-                event.preventDefault();
-            };
-            // Gunakan {capture: true} dan hilangkan setelah 50ms
-            fabElement.addEventListener('click', preventClick, { capture: true, once: true });
-            setTimeout(() => {
-                fabElement.removeEventListener('click', preventClick, { capture: true });
-            }, 50);
+        if (hasMoved) {
+            localStorage.setItem('fab_position', JSON.stringify({
+                left: el.style.left,
+                top: el.style.top
+            }));
         }
-    }
+    };
 
-    fabElement.addEventListener('mousedown', onStart);
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onEnd);
+    el.addEventListener('mousedown', onStart);
+    el.addEventListener('touchstart', onStart, { passive: false });
 
-    fabElement.addEventListener('touchstart', onStart, { passive: true });
-    document.addEventListener('touchmove', onMove, { passive: false });
-    document.addEventListener('touchend', onEnd);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchmove', onMove, { passive: false });
+
+    window.addEventListener('mouseup', onEnd);
+    window.addEventListener('touchend', onEnd);
+
+    // Prevent click if moved
+    el.addEventListener('click', (e) => {
+        if (hasMoved) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    }, true);
 }
 
+/* ===================================
+   Enhanced Draggable FAB Logic
+   =================================== */
+const fabBtn = document.getElementById('addBtn'); // Pastikan ID sesuai
 
+function setupDraggableFAB() {
+    if (!fabBtn) return;
 
+    // Deteksi apakah perangkat mobile
+    const isMobile = () => window.innerWidth <= 768;
+
+    if (isMobile()) {
+        // Jika Mobile: Hapus semua posisi bekas drag desktop agar kembali ke CSS
+        fabBtn.style.top = "";
+        fabBtn.style.left = "";
+        fabBtn.style.right = "";
+        fabBtn.style.bottom = "";
+        return; // Hentikan fungsi drag di mobile jika ingin posisi tetap (fixed)
+    }
+
+    // Logika Drag untuk Desktop
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+    fabBtn.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+        fabBtn.style.cursor = 'grabbing';
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+
+        // Set posisi baru
+        fabBtn.style.top = (fabBtn.offsetTop - pos2) + "px";
+        fabBtn.style.left = (fabBtn.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+        fabBtn.style.cursor = 'grab';
+    }
+}
+
+// Jalankan saat load dan saat resize layar
+window.addEventListener('load', setupDraggableFAB);
+window.addEventListener('resize', setupDraggableFAB);
