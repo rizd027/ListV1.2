@@ -739,7 +739,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 3000;
+    z-index: 5000;
     padding: 1rem;
     opacity: 0;
     visibility: hidden;
@@ -1486,3 +1486,4 @@ body {
         margin-bottom: 1rem;
     }
 }
+
