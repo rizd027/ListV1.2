@@ -84,6 +84,7 @@ const elements = {
     modal: document.getElementById('modal'),
     confirmModal: document.getElementById('confirmModal'),
     modalTitle: document.getElementById('modalTitle'),
+    modalIcon: document.getElementById('modalIcon'),
     submitBtnText: document.getElementById('submitBtnText'),
     loadingOverlay: document.getElementById('loadingOverlay'),
 
@@ -100,6 +101,7 @@ const elements = {
 document.addEventListener('DOMContentLoaded', () => {
     startSlideshow();
     initializeEventListeners();
+    initCustomSelects();
     if (currentUser && currentPass) {
         elements.loginOverlay.classList.add('hidden');
         elements.displayUser.textContent = currentUser;
@@ -107,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         elements.loginOverlay.classList.remove('hidden');
     }
+    setupStatFilters();
 });
 
 function initializeEventListeners() {
@@ -265,12 +268,15 @@ function startSlideshow() {
 function openAddModal() {
     currentEditId = null;
     elements.dataForm.reset();
+    updateCustomSelects();
     elements.editId.value = '';
     elements.modalTitle.textContent = 'Tambah Koleksi';
+    elements.modalIcon.setAttribute('data-lucide', 'plus-circle');
     elements.submitBtnText.textContent = 'Simpan';
 
     const today = new Date().toISOString().split('T')[0];
     elements.dateInput.value = today;
+    updateCustomSelects();
 
     elements.modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -281,7 +287,8 @@ function openAddModal() {
 function openEditModal(film) {
     currentEditId = film.id;
     elements.modalTitle.textContent = 'Edit Koleksi';
-    elements.submitBtnText.textContent = 'Simpan';
+    elements.modalIcon.setAttribute('data-lucide', 'edit-3');
+    elements.submitBtnText.textContent = 'Simpan Perubahan';
     elements.editId.value = film.id;
     elements.titleInput.value = film.title;
     elements.typeInput.value = film.type;
@@ -289,6 +296,7 @@ function openEditModal(film) {
     elements.statusInput.value = film.status;
     elements.dateInput.value = film.date ? new Date(film.date).toISOString().split('T')[0] : '';
     elements.notesInput.value = film.notes || '';
+    updateCustomSelects();
     elements.modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     lucide.createIcons();
@@ -298,6 +306,7 @@ function closeModal() {
     elements.modal.classList.add('hidden');
     document.body.style.overflow = 'auto';
     elements.dataForm.reset();
+    updateCustomSelects();
     currentEditId = null;
 }
 
@@ -837,3 +846,130 @@ function setupDraggableFAB() {
 // Jalankan saat load dan saat resize layar
 window.addEventListener('load', setupDraggableFAB);
 window.addEventListener('resize', setupDraggableFAB);
+
+// ===================================
+// Custom Select Logic
+// ===================================
+function initCustomSelects() {
+    const selects = document.querySelectorAll('select.form-input, select.filter-input');
+
+    selects.forEach(select => {
+        if (select.parentElement.classList.contains('custom-select-container')) return;
+
+        const container = document.createElement('div');
+        container.className = 'custom-select-container';
+        if (select.classList.contains('filter-input')) container.classList.add('filter-select');
+
+        const trigger = document.createElement('div');
+        trigger.className = 'custom-select-trigger';
+
+        // Get initial text
+        const selectedOption = select.options[select.selectedIndex];
+        trigger.textContent = selectedOption ? selectedOption.textContent : select.placeholder || 'Pilih...';
+
+        const optionsContainer = document.createElement('div');
+        optionsContainer.className = 'custom-options';
+
+        Array.from(select.options).forEach((option, index) => {
+            const optDiv = document.createElement('div');
+            optDiv.className = 'custom-option';
+            if (option.disabled) optDiv.classList.add('disabled');
+            if (option.selected) optDiv.classList.add('selected');
+            optDiv.textContent = option.textContent;
+
+            optDiv.addEventListener('click', () => {
+                if (option.disabled) return;
+                select.selectedIndex = index;
+                trigger.textContent = option.textContent;
+
+                // Update selected class
+                optionsContainer.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
+                optDiv.classList.add('selected');
+
+                container.classList.remove('active');
+
+                // Trigger change event on native select
+                select.dispatchEvent(new Event('change'));
+                select.dispatchEvent(new Event('input'));
+            });
+
+            optionsContainer.appendChild(optDiv);
+        });
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Close other custom selects
+            document.querySelectorAll('.custom-select-container').forEach(c => {
+                if (c !== container) c.classList.remove('active');
+            });
+            container.classList.toggle('active');
+        });
+
+        // Wrap select
+        select.style.display = 'none';
+        select.parentNode.insertBefore(container, select);
+        container.appendChild(trigger);
+        container.appendChild(optionsContainer);
+        container.appendChild(select);
+    });
+
+    // Close on outside click
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-select-container').forEach(c => c.classList.remove('active'));
+    });
+}
+
+// Helper to update custom select display (useful when resetting form or setting values programmatically)
+function updateCustomSelects() {
+    document.querySelectorAll('.custom-select-container').forEach(container => {
+        const select = container.querySelector('select');
+        const trigger = container.querySelector('.custom-select-trigger');
+        const options = container.querySelectorAll('.custom-option');
+
+        if (select && trigger) {
+            const selectedOption = select.options[select.selectedIndex];
+            trigger.textContent = selectedOption ? selectedOption.textContent : 'Pilih...';
+
+            options.forEach((opt, index) => {
+                opt.classList.toggle('selected', index === select.selectedIndex);
+            });
+        }
+    });
+}
+
+function setupStatFilters() {
+    const statusFilter = document.getElementById('statusFilter');
+    if (!statusFilter) return;
+
+    const filterMaps = [
+        { id: 'stat-completed', value: 'Selesai' },
+        { id: 'stat-watching', value: 'Sedang Ditonton' }, // Samakan dengan data Anda
+        { id: 'stat-planned', value: 'Rencana' }
+    ];
+
+    filterMaps.forEach(item => {
+        const element = document.getElementById(item.id);
+        if (element) {
+            const card = element.closest('.stat-card');
+            if (card) {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', () => {
+                    // 1. Set nilai pada select asli
+                    statusFilter.value = item.value;
+
+                    // 2. Update UI Custom Select
+                    if (typeof updateCustomSelects === 'function') {
+                        updateCustomSelects();
+                    }
+
+                    // 3. PANGGIL applyFilters (BUKAN handleSearch)
+                    applyFilters();
+
+                    // Feedback visual
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => card.style.transform = '', 100);
+                });
+            }
+        }
+    });
+}
