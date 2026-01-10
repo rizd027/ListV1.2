@@ -942,6 +942,7 @@ function setupStatFilters() {
     if (!statusFilter) return;
 
     const filterMaps = [
+        { id: 'stat-total', value: 'Total' },
         { id: 'stat-completed', value: 'Selesai' },
         { id: 'stat-watching', value: 'Sedang Ditonton' }, // Samakan dengan data Anda
         { id: 'stat-planned', value: 'Rencana' }
