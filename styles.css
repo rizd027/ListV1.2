@@ -66,9 +66,11 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbar */
+/* ========================
+   Custom Scrollbar
+   ======================== */
 ::-webkit-scrollbar {
-    width: 5px;
+    width: none;
 }
 
 ::-webkit-scrollbar-track {
@@ -1852,4 +1854,69 @@ select.form-input:invalid {
     padding-top: 0.4rem;
     padding-bottom: 0.4rem;
     font-size: 12px;
+}
+
+/* Container Grid 2 Kolom - Versi Compact */
+.modal-grid-compact {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    /* Gap lebih kecil agar compact */
+    width: 100%;
+}
+
+/* Label lebih kecil dan rapat */
+.modal-grid-compact .form-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+    /* Ukuran teks label diperkecil */
+    font-weight: 500;
+    color: var(--p-200);
+}
+
+/* Wrapper input harus block agar custom-select memenuhi kolom */
+.modal-grid-compact .input-wrapper {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+/* Ikon disesuaikan agar tetap di tengah */
+.modal-grid-compact .input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    pointer-events: none;
+    color: var(--p-400);
+    width: 16px;
+    /* Ukuran ikon diperkecil sedikit */
+    height: 16px;
+}
+
+/* Trigger Dropdown yang lebih pendek (Compact) */
+.modal-grid-compact .custom-select-trigger {
+    width: 100% !important;
+    min-width: 70px !important;
+    height: 34px !important;
+    /* Tinggi dikurangi dari 48px ke 38px */
+    padding-left: 34px !important;
+    /* Padding disesuaikan dengan ukuran ikon */
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border-bright);
+    border-radius: 8px;
+    /* Radius lebih tajam agar terlihat kokoh */
+    display: flex;
+    align-items: center;
+    color: var(--p-100);
+}
+
+/* Mengatur ukuran tanda panah dropdown agar proporsional */
+.modal-grid-compact .custom-select-trigger::after {
+    right: 10px !important;
+    width: 8px !important;
+    height: 8px !important;
 }
