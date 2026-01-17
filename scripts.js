@@ -3,7 +3,7 @@
 // ===================================
 const CONFIG = {
     // Google Apps Script Web App URL
-    SHEET_API_URL: 'https://script.google.com/macros/s/AKfycbyH2x7-aey72IBuU9wZDcHvraFtC-jWkPj4BLaBIYOeUqCESGnHEVjwQEyYuG6njp3S/exec',
+    SHEET_API_URL: 'https://script.google.com/macros/s/AKfycbxaPTrcGsO75QUYjVSApm0ls9HoLOJv7CTV61zZueFELOQYzAopbzgxWxEz8Etk4R3W/exec',
     // Set to false to use Google Sheets, true to use localStorage for testing
     USE_LOCAL_STORAGE: false
 };
@@ -501,7 +501,15 @@ async function deleteData(id) {
     const targetFilm = filmData.find(f => f.id == id);
     if (!targetFilm) return;
 
+    // Filter out the deleted item
     filmData = filmData.filter(f => f.id != id);
+
+    // Re-index remaining data to match Spreadsheet re-indexing logic
+    filmData.forEach((film, index) => {
+        film.id = index + 1;
+        film.rowIndex = index + 2; // +1 for 1-based, +1 for header
+    });
+
     applyFilters();
     updateStats();
     showToast('Menghapus data...', 'info');
@@ -514,6 +522,7 @@ async function deleteData(id) {
         const result = await response.json();
         if (result.status !== 'success') throw new Error(result.message);
         showToast('Terhapus dari database', 'success');
+        // No need for silentLoadData here since we already updated the state locally
     } catch (error) {
         filmData = oldData;
         applyFilters();
