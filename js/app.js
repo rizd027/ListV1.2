@@ -444,7 +444,10 @@ function initFabDrag(el) {
     };
 
     const updatePosition = (clientX, clientY) => {
-        if (!isDragging) return;
+        if (!isDragging) {
+            ticking = false;
+            return;
+        }
         const dx = clientX - startX, dy = clientY - startY;
         if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasMoved = true;
 
