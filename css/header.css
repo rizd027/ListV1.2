@@ -238,8 +238,6 @@
     }
 
     .header-scrolled .header {
-        width: 60% !important;
-        max-width: 400px;
         padding: 6px 16px !important;
         height: 50px;
         border-radius: 0px 0px 16px 16px;
