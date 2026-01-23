@@ -1,0 +1,243 @@
+/* ===================================
+   Modals & Forms Support
+   =================================== */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.2s;
+}
+
+.modal:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border-bright);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 360px;
+    padding: 14px;
+    transform: scale(0.95);
+    transition: 0.2s;
+}
+
+.modal:not(.hidden) .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modal-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modal-title-wrapper i {
+    color: var(--p-500);
+    font-size: 1.25rem;
+}
+
+.modal-icon-circle {
+    width: 36px;
+    height: 36px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--p-500);
+    flex-shrink: 0;
+}
+
+.modal-title-wrapper h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.close-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s var(--ease);
+}
+
+.close-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border-color: rgba(239, 68, 68, 0.2);
+    transform: rotate(90deg);
+}
+
+/* Forms inside modals */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.form-group label,
+.form-label {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--p-200);
+    padding-left: 0.25rem;
+}
+
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.input-icon {
+    z-index: 10;
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: var(--p-400);
+    pointer-events: none;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: white;
+    font-size: 0.9em !important;
+    transition: all 0.2s var(--ease);
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--p-500);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.cast-group {
+    margin-bottom: 8px;
+}
+ 
+.cast-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--p-200);
+    padding-left: 0.25rem;
+}
+
+ 
+.cast-form-input {
+    width: 100%;
+    min-height: 85px;
+    padding: 0.75rem 0.75rem 0.75rem 0.75rem !important;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px !important;
+    color: white;
+    font-size: 0.75rem !important;
+    transition: all 0.3s var(--ease);
+    box-sizing: border-box;
+    resize: none !important;
+}
+ 
+.cast-form-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--p-500);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.notes-area {
+    width: 100%;
+    min-height: 60px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    color: white;
+    font-size: 11px;
+    line-height: 1.5;
+    resize: vertical;
+    transition: all 0.3s var(--ease);
+}
+
+.notes-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--p-200);
+    padding-left: 0.25rem;
+    margin-bottom: 8px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 12px;
+}
+
+/* Modal Grid Compact */
+.modal-grid-compact {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.modal-grid-compact .custom-select-trigger {
+    width: 100% !important;
+    min-width: 70px !important;
+    height: 34px !important;
+    padding-left: 40px !important;
+    font-size: 0.7rem !important;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border-bright);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    color: var(--p-100);
+}

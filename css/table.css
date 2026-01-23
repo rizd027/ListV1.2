@@ -1,0 +1,238 @@
+/* ===================================
+   Data Table, Search & Filters
+   =================================== */
+
+/* Container */
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+}
+
+/* Search Section */
+.search-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 8px !important;
+}
+
+.search-container {
+    position: relative;
+    width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 8px;
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.filter-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.tipeFilter,
+.kategoriFilter {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.filter-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: var(--p-400);
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0.8;
+}
+
+.filter-input {
+    width: 100%;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    font-size: 12px;
+    padding: 0 2rem 0 2.25rem;
+    box-sizing: border-box;
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    transition: all 0.3s var(--ease);
+}
+
+.filter-input:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--glass-border-bright);
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: var(--p-500);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+@media (min-width: 768px) {
+    .search-section {
+        flex-direction: row;
+        align-items: center;
+        gap: 1.25rem;
+    }
+    .search-container { 
+        flex: 1; 
+    }
+    .filter-container { 
+        display: flex; 
+        gap: 0.75rem;
+        flex-shrink: 0;
+    }
+    .filter-input { 
+        width: 170px; 
+        min-width: 170px; 
+    }
+}
+
+
+/* Table */
+.table-container {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--glass-border);
+    cursor: pointer;
+}
+
+.data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    font-size: 0.9rem;
+}
+
+.data-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.status-selesai { background: rgba(16, 185, 129, 0.1); color: #34d399; }
+.status-sedang-ditonton { background: rgba(245, 158, 11, 0.1); color: #fbbf24; }
+.status-rencana { background: rgba(14, 165, 233, 0.1); color: #38bdf8; }
+.status-ditunda { background: rgba(148, 163, 184, 0.1); color: #cbd5e1; }
+.status-drop { background: rgba(239, 68, 68, 0.1); color: #f87171; }
+
+.type-tag {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.btn-edit, .btn-del {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s var(--ease);
+}
+
+.btn-edit:hover {
+    background: var(--p-500);
+    color: white;
+    border-color: var(--p-500);
+    transform: translateY(-2px);
+}
+
+.btn-del:hover {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger);
+    transform: translateY(-2px);
+}
+
+.btn-edit i, .btn-del i {
+    width: 16px;
+    height: 16px;
+}
+
+
+@media (max-width: 768px) {
+    .data-table thead { display: none; }
+    .table-container { background: none; border: none; }
+    .data-table, .data-table tbody, .data-table tr, .data-table td { display: block; width: 100%; }
+    .data-table tr {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 12px 16px;
+        margin-bottom: 12px;
+        box-shadow: var(--shadow-premium);
+    }
+    .data-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        font-size: 13px;
+    }
+    .data-table td:last-child { border-bottom: none; }
+    .data-table td::before {
+        content: attr(data-label);
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-dim);
+        text-transform: uppercase;
+    }
+}

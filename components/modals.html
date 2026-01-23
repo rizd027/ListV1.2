@@ -1,0 +1,129 @@
+<!-- Modal for Add/Edit -->
+<div id="modal" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title-wrapper">
+                <div class="modal-icon-circle">
+                    <i data-lucide="plus-circle" id="modalIcon"></i>
+                </div>
+                <div>
+                    <h2 id="modalTitle">Tambah Koleksi</h2>
+                </div>
+            </div>
+            <button id="closeModal" class="close-btn">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <form id="dataForm" class="data-form">
+            <input type="hidden" id="editId">
+
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="titleInput" class="form-label">Judul Koleksi <span
+                            class="required-mark">*</span></label>
+                    <div class="input-wrapper">
+                        <i data-lucide="clapperboard" class="input-icon"></i>
+                        <input type="text" id="titleInput" class="form-input"
+                            placeholder="Masukkan judul film atau series..." required>
+                    </div>
+                </div>
+
+                <div class="cast-group">
+                    <label for="castInput" class="cast-label">Cast</label>
+                    <div class="input-wrapper">
+                        <textarea id="castInput" class="cast-form-input"
+                            placeholder="Aktor, aktris, atau pengisi suara..." rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-grid-compact">
+                    <div class="form-group">
+                        <label for="typeInput" class="form-label">Tipe <span class="required-mark">*</span></label>
+                        <div class="input-wrapper">
+                            <i data-lucide="layers" class="input-icon"></i>
+                            <select id="typeInput" class="form-input" required>
+                                <option value="" disabled selected>Tipe</option>
+                                <option value="Film">Film</option>
+                                <option value="Donghua">Donghua</option>
+                                <option value="Anime">Anime</option>
+                                <option value="Series">Series</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="statusInput" class="form-label">Status <span class="required-mark">*</span></label>
+                        <div class="input-wrapper">
+                            <i data-lucide="activity" class="input-icon"></i>
+                            <select id="statusInput" class="form-input" required>
+                                <option value="" disabled selected>Status</option>
+                                <option value="Selesai">Selesai</option>
+                                <option value="Sedang Ditonton">Sedang Ditonton</option>
+                                <option value="Rencana">Rencana</option>
+                                <option value="Ditunda">Ditunda</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section-divider"></div>
+
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="episodesInput" class="form-label">Total Episode</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="hash" class="input-icon"></i>
+                            <input type="number" id="episodesInput" class="form-input" placeholder="Contoh: 12" min="1">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dateInput" class="form-label">Tanggal Selesai</label>
+                        <div class="input-wrapper">
+                            <i data-lucide="calendar" class="input-icon"></i>
+                            <input type="date" id="dateInput" class="form-input">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notes-group">
+                    <label for="notesInput" class="notes-label">Catatan & Review</label>
+                    <div class="notes-wrapper">
+                        <textarea id="notesInput" class="notes-area"
+                            placeholder="Apa pendapatmu tentang koleksi ini?..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" id="cancelBtn" class="btn btn-secondary">
+                    <span>Batal</span>
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <span id="submitBtnText">Simpan</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="modal hidden">
+    <div class="modal-content" style="max-width: 400px; text-align: center;">
+        <div class="modal-header">
+            <div class="modal-title-wrapper">
+                <i data-lucide="alert-triangle" class="text-warning"></i>
+                <h2>Hapus Data?</h2>
+            </div>
+            <button id="closeConfirmModal" class="close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <p style="margin-bottom: 2rem; color: var(--text-dim);">Data akan dihapus secara permanen.</p>
+        <div class="form-actions" style="justify-content: center;">
+            <button id="cancelDeleteBtn" class="btn btn-secondary">Batal</button>
+            <button id="confirmDeleteBtn" class="btn btn-danger">Hapus</button>
+        </div>
+    </div>
+</div>
