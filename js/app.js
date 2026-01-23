@@ -201,12 +201,12 @@ async function handleFormSubmit(e) {
         date: elements.dateInput.value || null,
         notes: elements.notesInput.value.trim()
     };
-
+    const editId = state.currentEditId;
     closeModal();
 
     try {
-        if (state.currentEditId) {
-            data.id = state.currentEditId;
+        if (editId) {
+            data.id = editId;
             await saveData(data, 'edit');
         } else {
             await saveData(data, 'add');
