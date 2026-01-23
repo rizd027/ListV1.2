@@ -13,7 +13,7 @@
     pointer-events: auto;
     width: 100%;
     max-width: 100%;
-    margin: 0px auto !important; /* Keep it centered */
+    margin: 0px auto !important;
     margin-bottom: 12px !important;
     background: rgba(15, 18, 25, 0.4);
     backdrop-filter: blur(20px) saturate(180%);
@@ -35,13 +35,6 @@
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 0px 0px 18px 18px;
-}
-
-.header-scrolled .header {
-    background: rgba(15, 18, 25, 0.4);
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
-    border-color: rgba(255, 255, 255, 0.15);
-    border-radius: 0px 0px 25px 25px;
 }
 
 .header-content {
