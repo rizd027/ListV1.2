@@ -250,27 +250,4 @@
     .user-dropdown .dropdown-info {
         padding: 4px 6px !important;
     }
-
-    .header-scrolled .user-dropdown {
-        width: auto !important;
-        padding: 6px;
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%) translateY(-8px) scale(0.96);
-        transform-origin: top center;
-    }
-
-    .header-scrolled .user-dropdown.show {
-        transform: translateX(-50%) translateY(0) scale(1);
-    }
-
-    .header-scrolled .dropdown-item {
-        padding: 8px 10px;
-        font-size: 12px;
-        gap: 8px;
-    }
-
-    .header-scrolled .dropdown-info {
-        padding: 6px 10px;
-    }
 }
