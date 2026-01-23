@@ -38,7 +38,6 @@
 }
 
 .header-scrolled .header {
-    padding: 8px 32px !important;
     background: rgba(15, 18, 25, 0.4);
     box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
     border-color: rgba(255, 255, 255, 0.15);
@@ -78,10 +77,6 @@
     transform-origin: left center;
 }
 
-.header-scrolled .title {
-    transform: scale(0.85); /* Use scale instead of font-size for smoothness */
-}
-
 .title-icon-svg {
     width: 28px !important;
     height: 28px !important;
@@ -89,8 +84,6 @@
     animation: pulse-glow 4s infinite var(--ease);
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-
 
 .title-icon-svg:hover {
     animation: shake 0.2s ease-in-out infinite;
