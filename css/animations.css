@@ -8,6 +8,25 @@
     }
 }
 
+/* GPU Optimized Reveal */
+@keyframes rowFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Micro-interactions */
+@keyframes press-scale {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
 @keyframes pulse-glow {
     0%,
     100% {
@@ -79,4 +98,30 @@
 @keyframes toastIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
+}
+
+/* Optimization Hints */
+.dropdown-content,
+.modal-content,
+.toast,
+.slide,
+.reveal-row {
+    will-change: transform, opacity;
+}
+
+.stats-card,
+.table-container {
+    contain: layout paint;
+}
+
+/* Reveal utility */
+.reveal-row {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+}
+
+.reveal-row.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
