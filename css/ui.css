@@ -85,9 +85,9 @@
     left: 0;
     right: 0;
     height: 50px; /* Reduced from 60px */
-    background: rgba(15, 18, 25, 0.75);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(15, 18, 25, 0.95); /* More opaque */
+    backdrop-filter: none !important; /* Disable heavy blur during scroll */
+    -webkit-backdrop-filter: none !important;
     display: none; /* Hidden by default */
     justify-content: space-around;
     align-items: center;
