@@ -232,7 +232,6 @@
 .custom-select-trigger {
     width: 100%;
     height: 38px;
-    min-width: 190px;
     padding: 0.5rem 0.75rem 0.5rem 2.25rem;
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--glass-border);
@@ -248,7 +247,6 @@
     text-overflow: ellipsis;
     transition: all 0.3s var(--ease);
 }
-
 .custom-select-trigger:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: var(--glass-border-bright);
@@ -293,6 +291,10 @@
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(12px);
+    box-sizing: border-box;
+    left: 0;
+    right: 0;
+    width: auto !important;
 }
 
 .custom-select-container.active .custom-options {
