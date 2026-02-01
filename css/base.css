@@ -48,6 +48,11 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
 body {
     font-family: 'Outfit', sans-serif;
     background: linear-gradient(180deg, rgba(3, 0, 17, 0.95) 0%, rgba(11, 0, 19, 0.9) 100%);
@@ -56,6 +61,7 @@ body {
     min-height: 100vh;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    -webkit-overflow-scrolling: touch;
 }
 
 svg[data-lucide] {
