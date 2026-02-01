@@ -110,7 +110,20 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.loginOverlay.classList.remove('hidden');
     }
     setupStatFilters();
+    initRevealObserver();
 });
+
+let revealObserver;
+function initRevealObserver() {
+    revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+}
 
 function initializeEventListeners() {
     elements.loginBtn.addEventListener('click', handleLogin);
@@ -206,8 +219,9 @@ function showAlert(title, message, type = 'info') {
     elements.alertMessage.textContent = message;
     const iconName = type === 'success' ? 'check-circle' : (type === 'error' ? 'alert-circle' : 'info');
     elements.alertIcon.setAttribute('data-lucide', iconName);
+    elements.alertIcon.setAttribute('data-lucide', iconName);
     elements.customAlert.classList.remove('hidden');
-    lucide.createIcons();
+    requestAnimationFrame(() => lucide.createIcons());
 }
 
 function showToast(message, type = 'success') {
@@ -219,7 +233,7 @@ function showToast(message, type = 'success') {
     toast.className = `toast active ${type}`;
     const iconName = type === 'success' ? 'check-circle' : (type === 'info' ? 'info' : 'alert-circle');
     elements.toastIcon.setAttribute('data-lucide', iconName);
-    lucide.createIcons();
+    requestAnimationFrame(() => lucide.createIcons());
     toastTimeout = setTimeout(() => {
         toast.classList.remove('active');
     }, 3000);
@@ -280,7 +294,7 @@ function openAddModal() {
 
     elements.modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    lucide.createIcons();
+    requestAnimationFrame(() => lucide.createIcons());
     setTimeout(() => elements.titleInput.focus(), 100);
 }
 
@@ -299,7 +313,7 @@ function openEditModal(film) {
     updateCustomSelects();
     elements.modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
-    lucide.createIcons();
+    requestAnimationFrame(() => lucide.createIcons());
 }
 
 function closeModal() {
@@ -582,8 +596,10 @@ function renderTable() {
             </td>
         `;
         elements.tableBody.appendChild(row);
+        row.classList.add('reveal-row');
+        if (revealObserver) revealObserver.observe(row);
     });
-    lucide.createIcons();
+    requestAnimationFrame(() => lucide.createIcons());
 }
 
 function updateStats() {
