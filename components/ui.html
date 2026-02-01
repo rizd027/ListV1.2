@@ -1,0 +1,53 @@
+<!-- Custom Alert Modal -->
+<div id="customAlert" class="modal hidden">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title-wrapper">
+                <i id="alertIcon" data-lucide="info"></i>
+                <h2 id="alertTitle">Pemberitahuan</h2>
+            </div>
+            <button id="closeAlertBtn" class="close-btn"><i data-lucide="x"></i></button>
+        </div>
+        <p id="alertMessage" style="margin-bottom: 1.5rem; color: var(--text-dim);"></p>
+        <button id="closeAlertBtnOk" class="btn btn-primary" style="width: 100%;">Oke</button>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+    <div style="text-align: center;">
+        <div class="spinner" style="margin: 0 auto 1rem;"></div>
+        <p class="loading-text" style="font-size: 0.9rem; color: var(--text-dim);">Loading...</p>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+    <div class="toast-icon">
+        <i id="toastIcon" data-lucide="check-circle"></i>
+    </div>
+    <span id="toastMessage" class="toast-message">Berhasil!</span>
+</div>
+
+<!-- Floating Action Button (Desktop Only) -->
+<button id="addBtn" class="fab-btn" title="Tambah Koleksi">
+    <i data-lucide="plus"></i>
+</button>
+
+<!-- Bottom Navigation for Mobile -->
+<nav class="bottom-nav" id="bottomNav">
+    <button class="nav-item" id="navSearch" title="Cari">
+        <i data-lucide="search"></i>
+        <span>Cari</span>
+    </button>
+    <button class="nav-item" id="navAdd" title="Tambah">
+        <div class="nav-add-icon">
+            <i data-lucide="plus"></i>
+        </div>
+        <span>Tambah</span>
+    </button>
+    <button class="nav-item" id="navBulkDelete" title="Hapus Banyak">
+        <i data-lucide="list-checks"></i>
+        <span>Hapus</span>
+    </button>
+</nav>
