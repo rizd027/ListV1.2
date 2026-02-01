@@ -220,7 +220,9 @@
 }
 
 /* Cleanup Date Input */
-.mdl-input[type="date"]::-webkit-calendar-picker-indicator {
+.mdl-input[type="date"]::-webkit-calendar-picker-indicator,
+.mdl-input[type="date"]::-webkit-inner-spin-button,
+.mdl-input[type="date"]::-webkit-clear-button {
     display: none !important;
     -webkit-appearance: none !important;
 }
@@ -402,6 +404,19 @@
     
     .mdl-textarea { font-size: 0.8rem !important; min-height: 48px !important; }
     .mdl-btn-main, .mdl-btn-alt { height: 34px; font-size: 0.78rem; padding: 0 20px; border-radius: 9px; }
+}
+
+/* Mobile Specific Refinements */
+@media (max-width: 768px) {
+    /* Hide the chevron/dropdown icon on date field as requested */
+    .mdl-date-group .mdl-field::after {
+        display: none !important;
+    }
+    
+    /* Ensure the field looks like a regular input without the extra padding for icon */
+    .mdl-date-group .mdl-input {
+        padding-right: 12px !important;
+    }
 }
 
 /* --- 10. Bulk Delete Modal Specifics --- */
