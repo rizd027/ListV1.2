@@ -23,6 +23,7 @@
     align-items: center;
     padding: 12px 28px;
     height: 75px;
+    will-change: transform, opacity;
     transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1),
                 height 0.6s cubic-bezier(0.16, 1, 0.3, 1),
                 margin 0.6s cubic-bezier(0.16, 1, 0.3, 1),
@@ -31,7 +32,6 @@
                 border-radius 0.6s cubic-bezier(0.16, 1, 0.3, 1),
                 box-shadow 0.4s ease,
                 border-color 0.4s ease;
-    will-change: width, height, margin, padding, border-radius;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 0px 0px 18px 18px;
@@ -221,6 +221,9 @@
     .header {
         padding: 12px 20px;
         height: 65px;
+        backdrop-filter: none !important; /* Performance boost on mobile */
+        -webkit-backdrop-filter: none !important;
+        background: rgba(15, 18, 25, 0.9) !important; /* More opaque background since no blur */
     }
 
     .user-dropdown {
