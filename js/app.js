@@ -163,6 +163,17 @@ function initializeEventListeners() {
             openBulkDeleteModal();
         });
     }
+
+    if (elements.sortMobile) {
+        elements.sortMobile.addEventListener('change', (e) => {
+            const [column, direction] = e.target.value.split('-');
+            if (column && direction) {
+                state.sortColumn = column;
+                state.sortDirection = direction;
+                applySort();
+            }
+        });
+    }
 }
 
 
@@ -419,7 +430,7 @@ function applyFilters() {
         return matchesSearch && matchesStatus && matchesCategory;
     });
 
-    renderTable();
+    applySort();
     updateStats();
 }
 
@@ -468,11 +479,16 @@ function updateStats() {
 function handleSort(column) {
     if (state.sortColumn === column) state.sortDirection = state.sortDirection === 'asc' ? 'desc' : 'asc';
     else { state.sortColumn = column; state.sortDirection = 'asc'; }
+    applySort();
+}
+
+function applySort() {
+    const { sortColumn, sortDirection } = state;
     state.filteredData.sort((a, b) => {
-        let aVal = a[column], bVal = b[column];
+        let aVal = a[sortColumn], bVal = b[sortColumn];
         if (aVal == null) return 1; if (bVal == null) return -1;
         if (typeof aVal === 'string') { aVal = aVal.toLowerCase(); bVal = bVal.toLowerCase(); }
-        return aVal < bVal ? (state.sortDirection === 'asc' ? -1 : 1) : (state.sortDirection === 'asc' ? 1 : -1);
+        return aVal < bVal ? (sortDirection === 'asc' ? -1 : 1) : (sortDirection === 'asc' ? 1 : -1);
     });
     renderTable();
 }
