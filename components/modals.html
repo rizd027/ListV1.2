@@ -1,0 +1,160 @@
+<!-- MODAL INPUT SYSTEM (Isolated Namespace: mdl-) -->
+
+<!-- Main Add/Edit Modal -->
+<div id="modal" class="mdl-overlay hidden">
+    <div class="mdl-container">
+        <!-- Header Group -->
+        <div class="mdl-header">
+            <div class="mdl-header-info">
+                <div class="mdl-header-icon">
+                    <i data-lucide="plus-circle" id="modalIcon"></i>
+                </div>
+                <h2 id="modalTitle" class="mdl-header-text">Tambah Koleksi</h2>
+            </div>
+            <button id="closeModal" class="mdl-close-btn">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <form id="dataForm" class="mdl-body">
+            <input type="hidden" id="editId">
+
+            <!-- Title & Link: Full Width -->
+            <div class="mdl-group">
+                <label class="mdl-label">Judul Koleksi <span class="mdl-req">*</span></label>
+                <div class="mdl-field">
+                    <i data-lucide="clapperboard"></i>
+                    <input type="text" id="titleInput" class="mdl-input" placeholder="Masukkan judul..." required>
+                </div>
+            </div>
+
+            <div class="mdl-group">
+                <label class="mdl-label">Link (Opsional)</label>
+                <div class="mdl-field">
+                    <i data-lucide="link"></i>
+                    <input type="text" id="linkInput" class="mdl-input" placeholder="URL Koleksi...">
+                </div>
+            </div>
+
+            <!-- Compact Grid: Tipe, Status, Episode, Tanggal -->
+            <div class="mdl-grid mdl-grid-main">
+                <div class="mdl-group">
+                    <label class="mdl-label">Tipe <span class="mdl-req">*</span></label>
+                    <div class="mdl-field mdl-type-select">
+                        <i data-lucide="layers"></i>
+                        <select id="typeInput" class="mdl-select" required>
+                            <option value="" disabled selected>Tipe</option>
+                            <option value="Film">Film</option>
+                            <option value="Donghua">Donghua</option>
+                            <option value="Anime">Anime</option>
+                            <option value="Series">Series</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mdl-group">
+                    <label class="mdl-label">Status <span class="mdl-req">*</span></label>
+                    <div class="mdl-field mdl-status-select">
+                        <i data-lucide="activity"></i>
+                        <select id="statusInput" class="mdl-select" required>
+                            <option value="" disabled selected>Status</option>
+                            <option value="Selesai">Selesai</option>
+                            <option value="Sedang Ditonton">Sedang Ditonton</option>
+                            <option value="Rencana">Rencana</option>
+                            <option value="Ditunda">Ditunda</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mdl-group">
+                    <label class="mdl-label">Episode</label>
+                    <div class="mdl-field">
+                        <i data-lucide="hash"></i>
+                        <input type="number" id="episodesInput" class="mdl-input" placeholder="Total" min="1">
+                    </div>
+                </div>
+
+                <div class="mdl-group">
+                    <label class="mdl-label">Tanggal</label>
+                    <div class="mdl-field">
+                        <i data-lucide="calendar"></i>
+                        <input type="date" id="dateInput" class="mdl-input">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balanced side-by-side: Cast & Review -->
+            <div class="mdl-side-layout">
+                <div class="mdl-group mdl-cast-area">
+                    <label class="mdl-label">Cast (Opsional)</label>
+                    <div class="mdl-field">
+                        <textarea id="castInput" class="mdl-textarea" placeholder="Aktor, aktris, dsb..."
+                            rows="1"></textarea>
+                    </div>
+                </div>
+
+                <div class="mdl-group mdl-review-area">
+                    <label class="mdl-label">Review</label>
+                    <div class="mdl-field no-icon">
+                        <textarea id="notesInput" class="mdl-textarea" placeholder="Tulis catatan singkat..."
+                            rows="1"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Group -->
+            <div class="mdl-footer">
+                <button type="button" id="cancelBtn" class="mdl-btn-alt">Batal</button>
+                <button type="submit" class="mdl-btn-main"><span id="submitBtnText">Simpan</span></button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bulk Delete Modal -->
+<div id="bulkDeleteModal" class="mdl-overlay hidden">
+    <div class="mdl-container">
+        <div class="mdl-header">
+            <div class="mdl-header-info">
+                <div class="mdl-header-icon danger">
+                    <i data-lucide="list-checks"></i>
+                </div>
+                <h2 class="mdl-header-text">Hapus Banyak</h2>
+            </div>
+            <button id="closeBulkDeleteModal" class="mdl-close-btn"><i data-lucide="x"></i></button>
+        </div>
+
+        <div class="mdl-body">
+            <div class="mdl-toolbar">
+                <span class="mdl-toolbar-desc">Pilih data untuk dihapus</span>
+                <label class="mdl-check-all">
+                    <input type="checkbox" id="selectAllBulk"> Semua
+                </label>
+            </div>
+            <div id="bulkDeleteList" class="mdl-bulk-list"></div>
+        </div>
+
+        <div class="mdl-footer">
+            <button id="cancelBulkDelete" class="mdl-btn-link">Batal</button>
+            <button id="confirmBulkDelete" class="mdl-btn-danger">Hapus (<span id="selectedCount">0</span>)</button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Alert -->
+<div id="confirmModal" class="mdl-overlay hidden">
+    <div class="mdl-container mdl-mini">
+        <div class="mdl-body text-center" style="padding: 30px 20px 10px;">
+            <div class="mdl-confirm-icon-wrapper">
+                <div class="mdl-confirm-icon-bg"></div>
+                <i data-lucide="alert-triangle" class="mdl-confirm-icon"></i>
+            </div>
+            <h2 id="confirmTitle" class="mdl-confirm-title">Hapus Data?</h2>
+            <p id="confirmDesc" class="mdl-confirm-desc">Data ini akan dihapus permanen dari koleksi Anda.</p>
+        </div>
+        <div class="mdl-footer mdl-central" style="border: none; padding-bottom: 25px;">
+            <button id="cancelDeleteBtn" class="mdl-btn-alt">Batal</button>
+            <button id="confirmDeleteBtn" class="mdl-btn-danger">Ya, Hapus</button>
+        </div>
+    </div>
+</div>
