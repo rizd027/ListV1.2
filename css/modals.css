@@ -23,6 +23,8 @@
     z-index: 10000;
     opacity: 0;
     visibility: hidden;
+    overflow-y: auto; /* Scroll here instead of body */
+    padding: 40px 20px;
 }
 
 .mdl-overlay:not(.hidden) {
@@ -36,11 +38,9 @@
     border-radius: 12px !important;
     width: 92%;
     max-width: 320px;
-    max-height: 90vh;
     display: flex;
     flex-direction: column;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-    overflow: hidden;
     position: relative;
 }
 
@@ -113,7 +113,6 @@
 
 .mdl-body {
     padding: 14px 20px 14px;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -167,7 +166,6 @@
     padding: 0 12px;
     position: relative;
     width: 100%;
-    overflow: hidden;
     /* Removed heavy box-shadow and transitions for typing speed */
 }
 
@@ -177,6 +175,7 @@
 
 .mdl-field:focus-within {
     border-color: var(--mdl-accent);
+    z-index: 1000;
 }
 
 .mdl-field i, .mdl-field svg {
@@ -226,29 +225,45 @@
 
 /* --- 5. Custom Select (Scoped inside Modal) --- */
 .mdl-container .custom-select-container {
+    position: relative;
     flex: 1;
     height: 100%;
-    position: static;
-    min-width: 0 !important; /* Force flex child to shrink */
+    display: flex; /* Back to flex for stable icon anchoring */
 }
 
 .mdl-container .custom-select-trigger {
+    flex: 1;
     height: 100% !important;
     background: transparent !important;
     border: none !important;
-    padding: 0 0 0 10px !important;
+    padding: 0 32px 0 10px !important; /* Spacious right padding for arrow */
     font-size: 0.78rem !important;
     font-weight: 400 !important;
     box-shadow: none !important;
-    min-width: 0 !important; /* Override global min-width from ui.css */
     width: 100% !important;
 }
 
 .mdl-container .custom-select-trigger::after {
-    right: 0 !important;
-    width: 12px !important;
-    height: 12px !important;
-    opacity: 0.2 !important;
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    right: 0px !important; /* Anchored to the right of the trigger container */
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    width: 14px !important;
+    height: 14px !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: contain !important;
+    opacity: 1 !important;
+    pointer-events: none;
+    transition: transform 0.3s ease !important;
+    z-index: 10;
+}
+
+.custom-select-container.active .custom-select-trigger::after {
+    transform: translateY(-50%) rotate(180deg) !important;
 }
 
 .mdl-container .custom-options {
@@ -257,7 +272,10 @@
     border-radius: 12px !important;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5) !important;
     padding: 4px !important;
-    z-index: 99999 !important;
+    z-index: 999999 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: auto !important;
 }
 
 .mdl-container .custom-option {
@@ -351,23 +369,23 @@
 
 /* --- 9. Desktop Adaptations --- */
 @media (min-width: 768px) {
-    .mdl-container { max-width: 760px; border-radius: 28px; }
-    .mdl-header { padding: 14px 32px; }
-    .mdl-body { padding: 18px 25px !important; gap: 14px; }
-    .mdl-footer { padding: 10px 25px 20px !important; }
+    .mdl-container { max-width: 760px; border-radius: 24px; }
+    .mdl-header { padding: 12px 25px; }
+    .mdl-body { padding: 12px 20px !important; gap: 10px; }
+    .mdl-footer { padding: 8px 20px 14px !important; }
     
-    .mdl-grid { gap: 14px; }
-    .mdl-grid-main { grid-template-columns: repeat(4, 1fr); }
-    .mdl-group { gap: 6px; }
+    .mdl-grid { gap: 10px; }
+    .mdl-grid-main { grid-template-columns: repeat(2, 1fr); } /* Spacious 2-column layout */
+    .mdl-group { gap: 5px; }
     .mdl-label { font-size: 0.68rem; letter-spacing: 0.12em; }
 
     .mdl-side-layout { 
         display: grid; 
         grid-template-columns: 1fr 1fr; 
-        gap: 24px; 
+        gap: 15px; 
     }
     
-    .mdl-cast-area .mdl-field, .mdl-review-area .mdl-field { min-height: 70px; height: 100% !important; }
+    .mdl-cast-area .mdl-field, .mdl-review-area .mdl-field { min-height: 60px; height: 100% !important; }
     .mdl-cast-area .mdl-textarea, .mdl-review-area .mdl-textarea { height: 100% !important; }
     .mdl-field { height: 36px; border-radius: 10px; }
     .mdl-field i { width: 14px !important; height: 14px !important; }
