@@ -408,9 +408,28 @@
 
 /* Mobile Specific Refinements */
 @media (max-width: 768px) {
-    /* Hide the chevron/dropdown icon on date field as requested */
-    .mdl-date-group .mdl-field::after {
+    /* Hide ALL possible indicators on date field as requested */
+    .mdl-date-group .mdl-field::after,
+    .mdl-date-group .mdl-select-trigger::after,
+    .mdl-date-group .custom-select-trigger::after {
         display: none !important;
+        content: none !important;
+    }
+    
+    .mdl-date-group input[type="date"] {
+        appearance: none !important;
+        -webkit-appearance: none !important;
+    }
+
+    .mdl-date-group input[type="date"]::-webkit-calendar-picker-indicator,
+    .mdl-date-group input[type="date"]::-webkit-inner-spin-button,
+    .mdl-date-group input[type="date"]::-webkit-clear-button {
+        display: none !important;
+        -webkit-appearance: none !important;
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        position: absolute !important;
     }
     
     /* Ensure the field looks like a regular input without the extra padding for icon */
