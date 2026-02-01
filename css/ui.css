@@ -29,6 +29,10 @@
     transform: translateY(-1px);
 }
 
+.btn:active {
+    animation: press-scale 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .btn-secondary {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--glass-border);
@@ -47,6 +51,10 @@
 .btn-danger:hover {
     background: #dc2626;
     transform: translateY(-1px);
+}
+
+.btn-icon:active {
+    transform: scale(0.9);
 }
 
 /* FAB */
